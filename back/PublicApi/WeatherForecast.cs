@@ -1,4 +1,4 @@
-namespace back
+namespace PublicApi
 {
     public class WeatherForecast
     {
