@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppCore", "AppCore\AppCore.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure", "Infrastructure\Infrastructure.csproj", "{D465DFD5-99B0-4984-B7B9-E4CE4F7ECF76}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain", "Revomed.Domain\Domain.csproj", "{61D0399B-A7DC-432B-A9AB-500D24BE2368}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{D465DFD5-99B0-4984-B7B9-E4CE4F7ECF76}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D465DFD5-99B0-4984-B7B9-E4CE4F7ECF76}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D465DFD5-99B0-4984-B7B9-E4CE4F7ECF76}.Release|Any CPU.Build.0 = Release|Any CPU
+		{61D0399B-A7DC-432B-A9AB-500D24BE2368}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{61D0399B-A7DC-432B-A9AB-500D24BE2368}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{61D0399B-A7DC-432B-A9AB-500D24BE2368}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{61D0399B-A7DC-432B-A9AB-500D24BE2368}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
