@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 //nu trebie sa lasam doar demunirea pentru class poject ca Domain, sau infrastructure, treb sa file Revomed.Domain etc., asa este mai explicit.
 namespace Domain.Entities.Users
 {
-    public sealed class Pacient
+    internal class Pacienti
     {
 
         [Key]
@@ -38,7 +38,7 @@ namespace Domain.Entities.Users
         [Required]
         [Display(Name = "Adresa pacientului")]
         [StringLength(30, MinimumLength = 10, ErrorMessage = "Umpleti campul cu valorile corespunzatoare")]
-        public string StreetAdress = string.Empty;
+        private string StreetAdress = string.Empty;
 
         [Required]
         [Display(Name = "Tara pacientului")]
@@ -48,8 +48,5 @@ namespace Domain.Entities.Users
         [Required]
         [Display(Name = "Numatul de telefon al pacientului")]
         public string Phone { get; set; } = string.Empty;
-
-        public DateTime DateTime { get; set; }
-
     }
-}   
+}

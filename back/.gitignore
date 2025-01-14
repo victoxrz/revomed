@@ -61,7 +61,6 @@ BenchmarkDotNet.Artifacts/
 # .NET Core
 project.lock.json
 project.fragment.lock.json
-
 artifacts/
 
 # ASP.NET Scaffolding
@@ -362,7 +361,3 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
-
-
-#/revomed/back//PublicAPI/appseings.json 
-/revomed/back/PublicAPI/appseings.json
