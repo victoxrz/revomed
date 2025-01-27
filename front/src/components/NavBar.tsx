@@ -17,13 +17,13 @@ export default function NavBar({
   return (
     <div className="flex">
       <div
-        className={`max-lg:visible invisible fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300 ${
+        className={`z-10 max-lg:visible invisible fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300 ${
           isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
         onClick={() => setIsOpen(false)}
       ></div>
       <div
-        className={`h-screen ${
+        className={`z-10 h-screen ${
           isOpen ? "w-72" : "w-0"
         } overflow-hidden duration-300 max-lg:absolute relative text-white`}
       >

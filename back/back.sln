@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.12.35527.113
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PublicApi", "PublicApi\PublicApi.csproj", "{0FB57AC9-1F02-4340-A718-975AE629D01F}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D465DFD5-99B0-4984-B7B9-E4CE4F7ECF76} = {D465DFD5-99B0-4984-B7B9-E4CE4F7ECF76}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppCore", "AppCore\AppCore.csproj", "{44FCED54-8CDD-456C-AD42-81BD819EF6F6}"
 EndProject
