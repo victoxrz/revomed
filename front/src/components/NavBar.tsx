@@ -1,7 +1,9 @@
 "use client";
+import Link from "next/link";
 import { useState } from "react";
 import { BsThreeDots } from "react-icons/bs";
 import { FaBars } from "react-icons/fa6";
+import { IoLogOutOutline } from "react-icons/io5";
 
 /* 
 on large screens default to open
@@ -40,15 +42,32 @@ export default function NavBar({
             </button>
           </div>
           <div className="flex-1">
-            <a className="btn btn-ghost text-xl">daisyUI</a>
+            <a className="btn btn-ghost text-xl">Revomed</a>
           </div>
           <div className="flex-none">
-            <button className="btn btn-square btn-ghost">
-              <BsThreeDots size={19} />
-            </button>
+            <div className="dropdown dropdown-end">
+              <div
+                tabIndex={0}
+                role="button"
+                className="btn btn-square btn-ghost"
+              >
+                <BsThreeDots size={19} />
+              </div>
+              <ul
+                tabIndex={0}
+                className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow"
+              >
+                <li>
+                  <a className="text-red-500 font-bold" href="/account/logout">
+                    <IoLogOutOutline size={19} />
+                    Logout
+                  </a>
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
-        {children}
+        <div className="p-4">{children}</div>
       </div>
     </div>
   );

@@ -14,6 +14,8 @@ public class Get : IEndpoint
             .Produces(StatusCodes.Status401Unauthorized)
             .WithTags(tag);
     }
+    
+    // TODO: check async/await use case
     public Ok<List<GetResponse>> HandleAsync()
     {
         return TypedResults.Ok(new List<GetResponse>()
