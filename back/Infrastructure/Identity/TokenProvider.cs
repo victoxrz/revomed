@@ -19,6 +19,7 @@ public sealed class TokenProvider(IConfiguration configuration)
             [
                 new Claim(JwtRegisteredClaimNames.Email, email)
             ]),
+            // TIMESTAMP IN SECONDS!!!
             Expires = DateTime.UtcNow.AddMinutes(settings.ExpiryMinutes),
 
             SigningCredentials = new SigningCredentials(
