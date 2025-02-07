@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace AppCore.Interfaces.Repository
 {
-    public interface IPacientRepository:IGenericRepository<Pacient>
+    public interface IPacientRepository : IGenericRepository<Pacient, int>
     {
-        Task<Pacient> GetPacientById(int Id);
+        //Task<Pacient> GetPacientById(int Id);
     }
 }

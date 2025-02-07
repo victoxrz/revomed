@@ -27,7 +27,7 @@ namespace Domain.Entities.Users
 
         [Required]
         [Display(Name = "IDNP")]
-        [StringLength(13, ErrorMessage = "Prenumele nu poate fi mai lung de 30 decat caractere si mai scurt decat 5.")]
+        [StringLength(13, ErrorMessage = "IDNP trebuie sa fie exact 13 caractere")]
         public string IDNP { get; set; } = string.Empty;
 
         [Required]
@@ -38,7 +38,7 @@ namespace Domain.Entities.Users
         [Required]
         [Display(Name = "Adresa pacientului")]
         [StringLength(30, MinimumLength = 10, ErrorMessage = "Umpleti campul cu valorile corespunzatoare")]
-        public string StreetAdress = string.Empty;
+        public string StreetAdress { get; set; } = string.Empty;
 
         [Required]
         [Display(Name = "Tara pacientului")]
@@ -49,7 +49,7 @@ namespace Domain.Entities.Users
         [Display(Name = "Numatul de telefon al pacientului")]
         public string Phone { get; set; } = string.Empty;
 
-        public DateTime DateTime { get; set; }
+        public DateTime DateTime { get; set; }  
 
     }
-}   
+}

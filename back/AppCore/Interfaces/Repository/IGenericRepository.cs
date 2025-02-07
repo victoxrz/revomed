@@ -7,9 +7,12 @@ using System.Threading.Tasks;
 
 namespace AppCore.Interfaces.Repository
 {
-    public interface IGenericRepository<TEntity> where TEntity : class
+    public interface IGenericRepository<TEntity, ITd> where TEntity : class
     {
-        public void AddGeneric(TEntity pacient);
-        public Task DeletByIdGenericAsync(ushort Id);
+        public Task AddGeneric(TEntity pacient);
+        public Task<bool> DeletByIdGenericAsync(int Id);
+        public Task<TEntity> GetEntityById(ITd Id);
+        public Task<IEnumerable<TEntity>> GetAllEntities();
+
     }
 }
