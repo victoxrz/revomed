@@ -41,5 +41,7 @@ export async function login(
     console.error("Network error:", error);
     return;
   }
+
+  console.log("login");
   redirect("/patients");
 }

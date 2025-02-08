@@ -35,7 +35,7 @@ export async function create(
 
     if (!response.ok) return;
 
-    const data = await response.json();
+    // const data = await response.json();
   } catch (error) {
     console.error("Network error:", error);
     return;
