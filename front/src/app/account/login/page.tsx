@@ -2,7 +2,7 @@
 import Card from "../_components/Card";
 import { useState, useActionState } from "react";
 import { FaEyeSlash, FaEye } from "react-icons/fa6";
-import { IoMail, IoKey, IoLogOutOutline } from "react-icons/io5";
+import { IoMail, IoKey } from "react-icons/io5";
 import { login } from "./actions";
 
 export default function Page() {

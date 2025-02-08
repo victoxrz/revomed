@@ -1,7 +1,5 @@
 "use server";
 import { cookies } from "next/headers";
-// import { validateSession } from "../account/_lib/dal";
-// import { redirect } from "next/navigation";
 
 interface Patient {
   id: number;
@@ -13,9 +11,6 @@ interface Patient {
 }
 
 export default async function Page() {
-  // const isLoggedIn = await validateSession();
-  // if (!isLoggedIn) redirect("account/login");
-
   let data: Patient[] = [];
   try {
     const response = await fetch(`${process.env.API_BASE_URL}/patients/get`, {
