@@ -25,8 +25,11 @@ export async function login(
       },
       body: new URLSearchParams(formData as unknown as Record<string, string>),
     });
+
     if (!response.ok) return;
+
     const data = await response.json();
+
     (await cookies()).set({
       name: process.env.AUTH_TOKEN_NAME!,
       value: data.token,
