@@ -8,12 +8,11 @@
 
   <ItemGroup>
     <Compile Remove="Pacient\**" />
+    <Compile Remove="Specifications\**" />
     <EmbeddedResource Remove="Pacient\**" />
+    <EmbeddedResource Remove="Specifications\**" />
     <None Remove="Pacient\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Specifications\" />
+    <None Remove="Specifications\**" />
   </ItemGroup>
 
   <ItemGroup>
