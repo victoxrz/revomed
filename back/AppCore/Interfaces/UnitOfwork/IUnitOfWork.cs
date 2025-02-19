@@ -11,8 +11,6 @@ namespace AppCore.Interfaces.UnitOfwork
     public interface IUnitOfWork
     {
         public IPacientRepository Pacienti { get; }
-
-
         Task SaveChangesAsync();
     }
 }

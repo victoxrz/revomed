@@ -7,9 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Entities\" />
-    <Folder Include="Exceptions\" />
-    <Folder Include="Pacient\" />
+    <Compile Remove="Pacient\**" />
+    <EmbeddedResource Remove="Pacient\**" />
+    <None Remove="Pacient\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="Specifications\" />
   </ItemGroup>
 
