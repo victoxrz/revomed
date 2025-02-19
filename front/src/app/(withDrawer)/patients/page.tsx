@@ -30,8 +30,6 @@ export default async function Page() {
     console.error("Network error:", error);
   }
 
-  // return <div></div>;
-
   return (
     <table className="table-auto w-full">
       <thead>

@@ -1,12 +1,12 @@
 import { cookies } from "next/headers";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
+// import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   // https://southcla.ws/how-to-implement-logout-nextjs-cache-revalidate
   (await cookies()).delete(process.env.AUTH_TOKEN_NAME!);
 
-  console.log("logout", req.nextUrl.locale);
-  return NextResponse.redirect("http://127.0.0.1:3000/account/login", {
+  return NextResponse.redirect("http://localhost:3000", {
     headers: {
       "Clear-Site-Data": `"*"`,
       "Cache-Control": "no-store",
