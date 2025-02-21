@@ -10,7 +10,7 @@ using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using PublicApi.Endpoints;
 using AppCore.Interfaces.Services;
-using AppCore.Interfaces.UnitOfwork;
+
 
 
 
@@ -34,12 +34,7 @@ namespace PublicApi
             builder.Services.AddSwaggerGen();
             builder.Services.AddControllers();
 
-            builder.Services
-                .AddApplication()
-                .AddInfrastructure();
-
             builder.Services.AddScoped<IPacientRepository, PacientRepository>();
-            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<IPacientService, PacientService>();
             builder.Services.AddDbContext<PacientiDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
