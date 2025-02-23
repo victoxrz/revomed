@@ -28,7 +28,10 @@ namespace Infrastructure.Repositories
         public async Task AddGeneric(TEntity entity)
         {
             if (_dbSet != null)
+            {
                 await _dbSet.AddAsync(entity);
+                await _context.SaveChangesAsync();
+            }
             else throw new NullReferenceException($"_dbSet is null");
         }
 
@@ -42,6 +45,7 @@ namespace Infrastructure.Repositories
                     if (entityToDelete != null)
                     {
                         _dbSet.Remove(entityToDelete);
+                        await _context.SaveChangesAsync();
                         _logger.LogInformation($"Pacient with id {Id} was deleted successfully");
                         return true;
                     }

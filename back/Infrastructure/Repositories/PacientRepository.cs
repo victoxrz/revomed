@@ -14,8 +14,12 @@ namespace Infrastructure.Repositories
 {
     public class PacientRepository : GenericRepository<Pacient, int>, IPacientRepository
     {
-        private PacientiDbContext _Pacientcontext;
+        private readonly PacientiDbContext _Pacientcontext;
 
-        public PacientRepository(PacientiDbContext context, ILogger<GenericRepository<Pacient, int>> logger) : base(context, logger) { }
+
+        public PacientRepository(PacientiDbContext context, ILogger<GenericRepository<Pacient, int>> logger) : base(context, logger) 
+        {
+            _Pacientcontext = context ?? throw new ArgumentNullException($"the PacientiDbContext is null ${nameof(context)}");
+        }
     }
-}
+}x`
