@@ -1,33 +1,15 @@
-using System.Security.Claims;
-using Infrastructure;
-using AppCore.Services;
-using AppCore;
-using Domain.Entities.Users;
-using Infrastructure.BL;
 using AppCore.Interfaces.Repository;
-using Infrastructure.BL;
-using Infrastructure.Repositories;
-using Microsoft.EntityFrameworkCore;
-using PublicApi.Endpoints;
 using AppCore.Interfaces.Services;
-
-
+using Infrastructure.Data;
 using Infrastructure.Identity;
+using Infrastructure.Repositories;
+using Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.OpenApi;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
-using PublicApi.Endpoints.Addons;
-using Scalar.AspNetCore;
-using System.Reflection;
-using System.Text;
-
-using Infrastructure.Identity;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.OpenApi;
-using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi;
 using Microsoft.OpenApi.Models;
 using PublicApi.Endpoints.Addons;
 using Scalar.AspNetCore;
@@ -45,9 +27,11 @@ namespace PublicApi
 
             builder.Services.AddOpenApi(options =>
             {
-                //options.OpenApiVersion = OpenApiSpecVersion.OpenApi3_0;
+                options.OpenApiVersion = OpenApiSpecVersion.OpenApi3_0;
                 options.AddDocumentTransformer<BearerSecuritySchemeTransformer>();
             });
+
+            builder.Services.AddEndpoints(Assembly.GetExecutingAssembly());
 
             builder.Services.AddCors(opt =>
             {
@@ -76,13 +60,13 @@ namespace PublicApi
                 });
             builder.Services.AddAuthorization();
 
-            builder.Services.AddScoped<IPacientRepository, PacientRepository>();
-            builder.Services.AddScoped<IPacientService, PacientService>();
-            builder.Services.AddDbContext<PacientiDbContext>(options =>
-                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-            builder.Services.AddMinimalendpoints();
-            builder.Services.AddScoped(typeof(IGenericRepository<Pacient, int>), typeof(GenericRepository<Pacient, int>));
+            builder.Services.AddScoped<IPatientRepository, PatientRepository>();
+            builder.Services.AddScoped<IPatientService, PatientService>();
 
+            builder.Services.AddDbContext<PostgresDbContext>(options =>
+                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+            //builder.Services.AddScoped(typeof(IGenericRepository<Pacient, int>), typeof(GenericRepository<Pacient, int>));
 
             var app = builder.Build();
 

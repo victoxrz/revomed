@@ -1,7 +1,6 @@
 ﻿using FluentValidation;
 using Infrastructure.Identity;
 using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using PublicApi.Endpoints.Addons;
 
@@ -20,7 +19,7 @@ public class Signup : IEndpoint
     }
 
     // TODO: check async/await use case
-    public Results<JsonHttpResult<FluentValidation.Results.ValidationResult>, Ok<SignupResponse>> 
+    public Results<JsonHttpResult<FluentValidation.Results.ValidationResult>, Ok<SignupResponse>>
         HandleAsync([FromForm] SignupRequest signupRequest, TokenProvider provider)
     {
         var result = new SignupRequestValidator().Validate(signupRequest);

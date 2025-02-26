@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 //nu trebie sa lasam doar demunirea pentru class poject ca Domain, sau infrastructure, treb sa file Revomed.Domain etc., asa este mai explicit.
-namespace Domain.Entities.Users
+namespace Domain.Entities
 {
-    public sealed class Pacient
+    public sealed class Patient
     {
 
         [Key]
@@ -49,7 +44,7 @@ namespace Domain.Entities.Users
         [Display(Name = "Numatul de telefon al pacientului")]
         public string Phone { get; set; } = string.Empty;
 
-        public DateTime DateTime { get; set; }  
+        public DateTime DateTime { get; set; }
 
     }
 }

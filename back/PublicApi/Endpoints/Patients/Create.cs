@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using PublicApi.Endpoints.Addons;
-using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
 
 namespace PublicApi.Endpoints.Patients;
@@ -18,7 +17,7 @@ public class Create : IEndpoint
             .WithTags(tag);
     }
 
-    public Ok<string> HandleAsync([FromForm]CreateRequest request)
+    public Ok<string> HandleAsync([FromForm] CreateRequest request)
     {
         return TypedResults.Ok("foarte bine");
     }
