@@ -22,4 +22,4 @@ namespace Infrastructure.Repositories
             _Pacientcontext = context ?? throw new ArgumentNullException($"the PacientiDbContext is null ${nameof(context)}");
         }
     }
-}x`
+}

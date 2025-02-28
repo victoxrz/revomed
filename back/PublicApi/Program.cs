@@ -10,29 +10,16 @@ using Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using PublicApi.Endpoints;
 using AppCore.Interfaces.Services;
-
-
-using Infrastructure.Identity;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.OpenApi;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
-using PublicApi.Endpoints.Addons;
-using Scalar.AspNetCore;
-using System.Reflection;
 using System.Text;
-
-using Infrastructure.Identity;
+using Jose;
+using Scalar.AspNetCore;
+using PublicApi.Endpoints.Addons;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.OpenApi;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using PublicApi.Endpoints.Addons;
-using Scalar.AspNetCore;
-using System.Reflection;
-using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+
 
 namespace PublicApi
 {
