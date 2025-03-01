@@ -1,36 +1,36 @@
 ﻿using AppCore.Contracts;
 using AppCore.Interfaces.Repository;
 using AppCore.Interfaces.Services;
-using Domain.Entities.Users;
+using Domain.Entities;
+using Infrastructure.Data;
 using Microsoft.Extensions.Logging;
-using Infrastructure.BL;
 
-namespace AppCore.Services
+namespace Infrastructure.Services
 {
-    public sealed class PacientService : IPacientService
+    public sealed class PatientService : IPatientService
     {
-        private readonly IGenericRepository<Pacient, int> _generic;
-        private readonly ILogger<PacientService> _logger;
-        private readonly PacientiDbContext _context;
+        private readonly IPatientRepository _generic;
+        private readonly ILogger<PatientService> _logger;
+        private readonly PostgresDbContext _context;
 
-        public PacientService(PacientiDbContext context, ILogger<PacientService> logger, IGenericRepository<Pacient, int> generic)
+        public PatientService(PostgresDbContext context, ILogger<PatientService> logger, IPatientRepository generic)
         {
             _logger = logger ?? throw new ArgumentNullException("Logger is null");
             _generic = generic ?? throw new ArgumentNullException("Generic Repository is null");
-            _context = context ?? throw new ArgumentNullException("PacientiDbContext is null");
-        }   
+            _context = context ?? throw new ArgumentNullException("PostgresDbContext is null");
+        }
 
-        public async Task<Pacient> AddPacientAsync(Pacient pacient)
+        public async Task<Patient> AddPacientAsync(Patient pacient)
         {
 
-            await _generic.AddGeneric(pacient);
+            await _generic.AddAsync(pacient);
             return pacient;
 
         }
 
         public async Task DeletePacientAsync(int Id)
         {
-            await _generic.DeletByIdGenericAsync(Id);
+            await _generic.DeleteByIdAsync(Id);
         }
 
         public async Task UpdatePacientByIdAsync(int Id, PacientRequest pacient)
@@ -38,7 +38,7 @@ namespace AppCore.Services
             try
             {
 
-                var existingPacient = await _generic.GetEntityById(Id);
+                var existingPacient = await _generic.GetByIdAsync(Id);
                 if (existingPacient == null) throw new NullReferenceException($"Pacient with id {Id} was not found");
 
                 existingPacient.Id = Id;
@@ -61,14 +61,14 @@ namespace AppCore.Services
         }
 
 
-        public async Task<Pacient> GetPacientByIdAsync(int id)
+        public async Task<Patient> GetPacientByIdAsync(int id)
         {
-            return await _generic.GetEntityById(id);
+            return await _generic.GetByIdAsync(id);
         }
 
-        public async Task<IEnumerable<Pacient>> GetAllPacient()
+        public async Task<IEnumerable<Patient>> GetAllPacient()
         {
-            return await _generic.GetAllEntities();
+            return await _generic.GetAllAsync();
         }
 
     }
