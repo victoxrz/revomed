@@ -1,4 +1,5 @@
-﻿using FluentValidation;
+﻿using AppCore.Interfaces.Repository;
+using FluentValidation;
 using Infrastructure.Identity;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -15,18 +16,24 @@ public class Signup : IEndpoint
             .DisableAntiforgery()
             .AllowAnonymous()
             .Produces(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status400BadRequest)
             .WithTags(tag);
     }
 
-    // TODO: check async/await use case
-    public Results<JsonHttpResult<FluentValidation.Results.ValidationResult>, Ok<SignupResponse>>
-        HandleAsync([FromForm] SignupRequest signupRequest, TokenProvider provider)
+    public async Task<Results<
+        JsonHttpResult<FluentValidation.Results.ValidationResult>, 
+        BadRequest,
+        Ok<SignupResponse>>>
+        HandleAsync([FromForm] SignupRequest signupRequest, TokenProvider provider, IUserRepository repo)
     {
         var result = new SignupRequestValidator().Validate(signupRequest);
         if (!result.IsValid)
         {
             return TypedResults.Json(result, new System.Text.Json.JsonSerializerOptions(), null, StatusCodes.Status400BadRequest);
         }
+
+        var isSuccesful = await repo.SignupAsync(signupRequest.Email, signupRequest.Password);
+        if (!isSuccesful) return TypedResults.BadRequest();
 
         var token = provider.Create(signupRequest.Email);
         return TypedResults.Ok(new SignupResponse() { Token = token });
@@ -36,7 +43,7 @@ public class Signup : IEndpoint
     {
         public string Email { get; set; } = string.Empty;
         public string Password { get; set; } = string.Empty;
-        public string Username { get; set; } = string.Empty;
+        //public string Username { get; set; } = string.Empty;
     }
 
     private class SignupRequestValidator : AbstractValidator<SignupRequest>
