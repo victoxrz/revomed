@@ -22,7 +22,6 @@ namespace PublicApi
     {
         public static void Main(string[] args)
         {
-            //Add-Migration and update-Database
             var builder = WebApplication.CreateBuilder(args);
 
             builder.Services.AddOpenApi(options =>
@@ -44,6 +43,7 @@ namespace PublicApi
             });
             //builder.Services.AddAntiforgery();
             builder.Services.AddSingleton<TokenProvider>();
+            builder.Services.AddSingleton<HashProvider>();
 
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(o =>
@@ -62,11 +62,12 @@ namespace PublicApi
 
             builder.Services.AddScoped<IPatientRepository, PatientRepository>();
             builder.Services.AddScoped<IPatientService, PatientService>();
+            builder.Services.AddScoped<IUserRepository, UserRepository>();
 
+            //builder.Services.AddDbContext<PostgresDbContext>(options =>
+            //    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
             builder.Services.AddDbContext<PostgresDbContext>(options =>
-                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-            //builder.Services.AddScoped(typeof(IGenericRepository<Pacient, int>), typeof(GenericRepository<Pacient, int>));
+                options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
             var app = builder.Build();
 

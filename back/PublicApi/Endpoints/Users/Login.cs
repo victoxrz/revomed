@@ -1,4 +1,5 @@
-﻿using FluentValidation;
+﻿using AppCore.Interfaces.Repository;
+using FluentValidation;
 using Infrastructure.Identity;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -20,9 +21,11 @@ public class Login : IEndpoint
             .WithTags(tag);
     }
 
-    // TODO: check async/await use case
-    public Results<JsonHttpResult<FluentValidation.Results.ValidationResult>, Ok<LoginResponse>, UnauthorizedHttpResult>
-        HandleAsync([FromForm] LoginRequest loginRequest, TokenProvider provider)
+    public async Task<Results<
+        JsonHttpResult<FluentValidation.Results.ValidationResult>, 
+        Ok<LoginResponse>, 
+        UnauthorizedHttpResult>>
+        HandleAsync([FromForm] LoginRequest loginRequest, TokenProvider provider, IUserRepository repo)
     {
         var result = new LoginRequestValidator().Validate(loginRequest);
         if (!result.IsValid)
@@ -30,7 +33,7 @@ public class Login : IEndpoint
             return TypedResults.Json(result, new System.Text.Json.JsonSerializerOptions(), null, StatusCodes.Status400BadRequest);
         }
 
-        if (loginRequest.Email == "admin@admin.com" && loginRequest.Password == "adminadmin")
+        if (await repo.LoginAsync(loginRequest.Email, loginRequest.Password))
         {
             var token = provider.Create(loginRequest.Email);
             return TypedResults.Ok(new LoginResponse() { Token = token });
