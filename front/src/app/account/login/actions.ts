@@ -17,6 +17,8 @@ export async function login(
     };
   }
 
+  console.log("login");
+  redirect("/patients");
   try {
     const response = await fetch(`${process.env.API_BASE_URL}/users/login`, {
       method: "POST",
@@ -41,7 +43,4 @@ export async function login(
     console.error("Network error:", error);
     return;
   }
-
-  console.log("login");
-  redirect("/patients");
 }

@@ -41,7 +41,12 @@ export const CreateSchema = z.object({
   last_name: z.string().min(1, "Nume field must not be empty"),
   first_name: z.string().min(1, "Prenume field must not be empty"),
   birthday: z.coerce.date().min(new Date(1900, 0, 1), "Invalid date"),
-  gender: z.enum(["Male", "Female"]),
+  gender: z.enum(["Male", "Female", "Other"]),
+  idnp: z.string().length(13, "IDNP must be 13 characters long"),
+  phone: z.string(),
+  address: z.string(),
+  job: z.string(),
+  bloodType: z.enum(["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"]),
 });
 
 export type createErrors = z.inferFlattenedErrors<typeof CreateSchema>;

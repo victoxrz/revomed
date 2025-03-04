@@ -5,7 +5,7 @@ import { FaBars } from "react-icons/fa6";
 import { IoLogOutOutline } from "react-icons/io5";
 
 /* 
-on large screens default to open
+TODO: on large screens default to open
 */
 export default function NavBar({
   menu,
@@ -24,7 +24,7 @@ export default function NavBar({
         onClick={() => setIsOpen(false)}
       ></div>
       <div
-        className={`z-10 h-screen ${
+        className={`z-10 h-screen border-r border-slate-500 ${
           isOpen ? "w-72" : "w-0"
         } overflow-hidden duration-300 max-lg:absolute relative text-white`}
       >
@@ -41,7 +41,9 @@ export default function NavBar({
             </button>
           </div>
           <div className="flex-1">
-            <a className="btn btn-ghost text-xl">Revomed</a>
+            <a href="/" className="btn btn-ghost text-xl">
+              Revomed
+            </a>
           </div>
           <div className="flex-none">
             <div className="dropdown dropdown-end">
@@ -54,7 +56,7 @@ export default function NavBar({
               </div>
               <ul
                 tabIndex={0}
-                className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow"
+                className="dropdown-content menu bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm"
               >
                 <li>
                   <a className="text-red-500 font-bold" href="/account/logout">
