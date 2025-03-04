@@ -1,5 +1,6 @@
 "use server";
 import { cookies } from "next/headers";
+import Link from "next/link";
 
 interface Patient {
   id: number;
@@ -30,8 +31,19 @@ export default async function Page() {
     console.error("Network error:", error);
   }
 
+  data = [
+    {
+      id: 1,
+      lastName: "Popescu",
+      firstName: "Ion",
+      dateOfBirth: new Date("1990-01-01"),
+      gender: "M",
+      phone: "0722222222",
+    },
+  ];
+
   return (
-    <table className="table-auto w-full">
+    <table className="table w-full">
       <thead>
         <tr>
           <th>Nume</th>
@@ -39,6 +51,7 @@ export default async function Page() {
           <th>Data nasterii</th>
           <th>Gen</th>
           <th>Telefon</th>
+          <th></th>
         </tr>
       </thead>
       <tbody>
@@ -49,6 +62,12 @@ export default async function Page() {
             <td>{patient.dateOfBirth.toString()}</td>
             <td>{patient.gender}</td>
             <td>{patient.phone}</td>
+            <td>
+              <Link href={`patients/${patient.id}`} className="btn btn-primary">
+                Edit
+              </Link>
+              {/* <button className="btn btn-danger">Delete</button> */}
+            </td>
           </tr>
         ))}
       </tbody>

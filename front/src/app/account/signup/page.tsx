@@ -12,7 +12,7 @@ export default function Signup() {
   const fieldErrors = state?.errors?.fieldErrors || {};
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-cyan-200 to-blue-200">
+    <div className="flex items-center justify-center min-h-screen bg-linear-to-r from-cyan-200 to-blue-200">
       <form action={action}>
         <Card title={"Sign up"}>
           <label className="form-control">
