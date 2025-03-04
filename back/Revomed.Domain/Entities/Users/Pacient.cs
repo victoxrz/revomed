@@ -33,13 +33,13 @@ namespace Domain.Entities.Users
         [StringLength(1, ErrorMessage = "Umpleti campul cu valorile corespunzatoare")]
         public Gender Gender { get; set; }
 
-        [Required]
-        [StringLength(1, ErrorMessage = "Umpleti campul cu valorile corespunzatoare")]
-        public Lang Language { get; set; }
+        //[Required]
+        //[StringLength(1, ErrorMessage = "Umpleti campul cu valorile corespunzatoare")]
+        //public Lang Language { get; set; }
 
-        [Required]
-        [StringLength(1, ErrorMessage = "Umpleti campul cu valorile corespunzatoare")]
-        public Curr Currency { get; set; }
+        //[Required]
+        //[StringLength(1, ErrorMessage = "Umpleti campul cu valorile corespunzatoare")]
+        //public Curr Currency { get; set; }
 
         [Required]
         [StringLength(1, ErrorMessage = "Umpleti campul cu valorile corespunzatoare")]

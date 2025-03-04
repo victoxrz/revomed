@@ -8,9 +8,13 @@ namespace Domain.Enum
 {
     public enum BT : ushort // blood type
     {
-        A = 0,
-        B,
-        AB,
-        O
+        Apl = 0,
+        Amin,
+        Bpl,
+        Bmin,
+        ABpl,
+        ABmin,
+        Zpl,
+        Zmin
     }
 }
