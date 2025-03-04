@@ -12,4 +12,8 @@
     <None Remove="Enum\**" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Enums\" />
+  </ItemGroup>
+
 </Project>
