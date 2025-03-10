@@ -37,16 +37,20 @@ export const SignupSchema = z
 
 export type signupErrors = z.inferFlattenedErrors<typeof SignupSchema>;
 
-export const CreateSchema = z.object({
-  last_name: z.string().min(1, "Nume field must not be empty"),
-  first_name: z.string().min(1, "Prenume field must not be empty"),
-  birthday: z.coerce.date().min(new Date(1900, 0, 1), "Invalid date"),
+export const PatientSchema = z.object({
+  id: z.coerce.number(),
+  lastName: z.string().min(1, "Nume field must not be empty"),
+  firstName: z.string().min(1, "Prenume field must not be empty"),
+  patronymic: z.string(),
   gender: z.enum(["Male", "Female", "Other"]),
-  idnp: z.string().length(13, "IDNP must be 13 characters long"),
-  phone: z.string(),
-  address: z.string(),
-  job: z.string(),
   bloodType: z.enum(["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"]),
+  birthday: z.coerce.date().min(new Date(1900, 0, 1), "Invalid date"),
+  idnp: z.string().length(13, "IDNP must be 13 characters long"),
+  job: z.string(),
+  streetAddress: z.string(),
+  country: z.string(),
+  phone: z.string(),
 });
 
-export type createErrors = z.inferFlattenedErrors<typeof CreateSchema>;
+export type patientErrors = z.inferFlattenedErrors<typeof PatientSchema>;
+export type Patient = z.infer<typeof PatientSchema>;

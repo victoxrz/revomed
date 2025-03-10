@@ -21,7 +21,7 @@ public class Signup : IEndpoint
     }
 
     public async Task<Results<
-        JsonHttpResult<FluentValidation.Results.ValidationResult>, 
+        JsonHttpResult<List<FluentValidation.Results.ValidationFailure>>,
         BadRequest,
         Ok<SignupResponse>>>
         HandleAsync([FromForm] SignupRequest signupRequest, TokenProvider provider, IUserRepository repo)
@@ -29,11 +29,12 @@ public class Signup : IEndpoint
         var result = new SignupRequestValidator().Validate(signupRequest);
         if (!result.IsValid)
         {
-            return TypedResults.Json(result, new System.Text.Json.JsonSerializerOptions(), null, StatusCodes.Status400BadRequest);
+            return TypedResults.Json(result.Errors, new System.Text.Json.JsonSerializerOptions(), null, StatusCodes.Status400BadRequest);
         }
 
         var isSuccesful = await repo.SignupAsync(signupRequest.Email, signupRequest.Password);
-        if (!isSuccesful) return TypedResults.BadRequest();
+        if (!isSuccesful)
+            return TypedResults.BadRequest();
 
         var token = provider.Create(signupRequest.Email);
         return TypedResults.Ok(new SignupResponse() { Token = token });
@@ -44,6 +45,16 @@ public class Signup : IEndpoint
         public string Email { get; set; } = string.Empty;
         public string Password { get; set; } = string.Empty;
         //public string Username { get; set; } = string.Empty;
+
+        //public static explicit operator User(SignupRequest request)
+        //{
+        //    return new User
+        //    {
+        //        Email = request.Email,
+        //        Password = request.Password,
+
+        //    };
+        //}
     }
 
     private class SignupRequestValidator : AbstractValidator<SignupRequest>
@@ -55,6 +66,7 @@ public class Signup : IEndpoint
                 .EmailAddress();
             RuleFor(x => x.Password)
                 .NotEmpty();
+            //.MinimumLength(8)
         }
     }
 

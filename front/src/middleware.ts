@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { validateSession } from "./app/_lib/dal";
 
 export async function middleware(req: NextRequest) {
-  return NextResponse.next();
+  // return NextResponse.next();
   const isLoggedIn = await validateSession();
 
   if (!isLoggedIn) {

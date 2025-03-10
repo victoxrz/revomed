@@ -22,8 +22,8 @@ public class Login : IEndpoint
     }
 
     public async Task<Results<
-        JsonHttpResult<FluentValidation.Results.ValidationResult>, 
-        Ok<LoginResponse>, 
+        JsonHttpResult<FluentValidation.Results.ValidationResult>,
+        Ok<LoginResponse>,
         UnauthorizedHttpResult>>
         HandleAsync([FromForm] LoginRequest loginRequest, TokenProvider provider, IUserRepository repo)
     {

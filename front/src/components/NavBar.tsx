@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import { useState } from "react";
 import { BsThreeDots } from "react-icons/bs";
 import { FaBars } from "react-icons/fa6";
@@ -41,9 +42,9 @@ export default function NavBar({
             </button>
           </div>
           <div className="flex-1">
-            <a href="/" className="btn btn-ghost text-xl">
+            <Link href="/" className="btn btn-ghost text-xl">
               Revomed
-            </a>
+            </Link>
           </div>
           <div className="flex-none">
             <div className="dropdown dropdown-end">

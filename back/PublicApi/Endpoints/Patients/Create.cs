@@ -1,7 +1,10 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
+﻿using AppCore.Interfaces.Repository;
+using Domain.Entities;
+using Domain.Enums;
+using Mapster;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using PublicApi.Endpoints.Addons;
-using System.Text.Json.Serialization;
 
 namespace PublicApi.Endpoints.Patients;
 
@@ -13,28 +16,32 @@ public class Create : IEndpoint
         app.MapPost(tag.ToLower() + "/create", HandleAsync)
             .DisableAntiforgery()
             .RequireAuthorization()
-            .Produces(StatusCodes.Status200OK)
             .WithTags(tag);
     }
 
-    public Ok<string> HandleAsync([FromForm] CreateRequest request)
+    // JsonStringEnumConverter only works with FromBody
+    // https://github.com/dotnet/aspnetcore/issues/49398
+    public async Task<Results<Created, BadRequest<string>>> HandleAsync([FromBody] CreateRequest request, IPatientRepository repo)
     {
-        return TypedResults.Ok("foarte bine");
+        var isSuccesful = await repo.AddAsync(request.Adapt<Patient>());
+        if (!isSuccesful)
+            return TypedResults.BadRequest("Patient with this IDNP already exists");
+
+        return TypedResults.Created();
     }
 
     public class CreateRequest
     {
         public string FirstName { get; set; } = string.Empty;
         public string LastName { get; set; } = string.Empty;
-        public DateTime Birthday { get; set; }
+        public DateOnly Birthday { get; set; }
         public Gender Gender { get; set; }
-    }
-
-    // TODO: move from here
-    [JsonConverter(typeof(JsonStringEnumConverter))]
-    public enum Gender
-    {
-        Male,
-        Female
+        public string Patronymic { get; set; } = string.Empty;
+        public BloodType BloodType { get; set; }
+        public string IDNP { get; set; } = string.Empty;
+        public string Job { get; set; } = string.Empty;
+        public string StreetAddress { get; set; } = string.Empty;
+        public string Country { get; set; } = string.Empty;
+        public string Phone { get; set; } = string.Empty;
     }
 }

@@ -1,20 +1,13 @@
 "use server";
 import { cookies } from "next/headers";
 import Link from "next/link";
-
-interface Patient {
-  id: number;
-  lastName: string;
-  firstName: string;
-  dateOfBirth: Date;
-  gender: string;
-  phone: string;
-}
+import { PatientSum } from "./_types";
+import { deletePatient } from "@/actions/PatientController";
 
 export default async function Page() {
-  let data: Patient[] = [];
+  let data: PatientSum[] = [];
   try {
-    const response = await fetch(`${process.env.API_BASE_URL}/patients/get`, {
+    const response = await fetch(`${process.env.API_BASE_URL}/patients/list`, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${
@@ -30,17 +23,6 @@ export default async function Page() {
   } catch (error) {
     console.error("Network error:", error);
   }
-
-  data = [
-    {
-      id: 1,
-      lastName: "Popescu",
-      firstName: "Ion",
-      dateOfBirth: new Date("1990-01-01"),
-      gender: "M",
-      phone: "0722222222",
-    },
-  ];
 
   return (
     <table className="table w-full">
@@ -59,14 +41,25 @@ export default async function Page() {
           <tr key={patient.id}>
             <td>{patient.lastName}</td>
             <td>{patient.firstName}</td>
-            <td>{patient.dateOfBirth.toString()}</td>
+            <td>{patient.birthday.toString()}</td>
             <td>{patient.gender}</td>
             <td>{patient.phone}</td>
             <td>
-              <Link href={`patients/${patient.id}`} className="btn btn-primary">
+              <Link
+                href={`patients/${patient.id}`}
+                className="btn btn-primary mr-2"
+              >
                 Edit
               </Link>
-              {/* <button className="btn btn-danger">Delete</button> */}
+              <form className="inline-block" action={deletePatient}>
+                <input type="hidden" name="id" value={patient.id} />
+                <button
+                  className="btn btn-ghost text-red-500 font-bold"
+                  type="submit"
+                >
+                  Delete
+                </button>
+              </form>
             </td>
           </tr>
         ))}

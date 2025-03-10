@@ -4,6 +4,7 @@ using Infrastructure.Data;
 using Infrastructure.Identity;
 using Infrastructure.Repositories;
 using Infrastructure.Services;
+using Mapster;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.OpenApi;
@@ -20,6 +21,7 @@ namespace PublicApi
 {
     public sealed class Program
     {
+        // TODO: consider removing Mapster in favor for implementing manual mapping or another lightweight
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
@@ -42,6 +44,7 @@ namespace PublicApi
                 });
             });
             //builder.Services.AddAntiforgery();
+
             builder.Services.AddSingleton<TokenProvider>();
             builder.Services.AddSingleton<HashProvider>();
 
@@ -89,6 +92,7 @@ namespace PublicApi
             app.MapEndpoints();
             app.Run();
         }
+
         internal sealed class BearerSecuritySchemeTransformer(IAuthenticationSchemeProvider authenticationSchemeProvider) : IOpenApiDocumentTransformer
         {
             public async Task TransformAsync(OpenApiDocument document, OpenApiDocumentTransformerContext context, CancellationToken cancellationToken)
