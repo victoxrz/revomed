@@ -28,10 +28,10 @@ namespace Infrastructure.Services
 
         }
 
-        public async Task DeletePacientAsync(int Id)
-        {
-            await _generic.DeleteByIdAsync(Id);
-        }
+        //public async Task DeletePacientAsync(int Id)
+        //{
+        //    await _generic.DeleteByIdAsync(Id);
+        //}
 
         public async Task UpdatePacientByIdAsync(int Id, PacientRequest pacient)
         {
@@ -45,11 +45,11 @@ namespace Infrastructure.Services
                 existingPacient.FirstName = pacient.FirstName;
                 existingPacient.LastName = pacient.LastName;
                 existingPacient.IDNP = pacient.IDNP;
-                existingPacient.Sex = pacient.Sex;
+                //existingPacient.Sex = pacient.Sex;
                 existingPacient.Phone = pacient.Phone;
-                existingPacient.StreetAdress = pacient.StreetAdress;
+                //existingPacient.StreetAdress = pacient.StreetAdress;
                 existingPacient.Country = pacient.Country;
-                existingPacient.DateTime = DateTime.Now;
+                //existingPacient.DateTime = DateTime.Now;
 
                 await _context.SaveChangesAsync();
 
@@ -68,7 +68,8 @@ namespace Infrastructure.Services
 
         public async Task<IEnumerable<Patient>> GetAllPacient()
         {
-            return await _generic.GetAllAsync();
+            throw new NotImplementedException();
+            //return await _generic.GetAll();
         }
 
     }

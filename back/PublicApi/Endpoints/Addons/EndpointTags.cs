@@ -4,4 +4,5 @@ public enum EndpointTags
 {
     Users,
     Patients,
+    Visits,
 }

@@ -2,8 +2,6 @@
 using Domain.Entities;
 using Infrastructure.Data;
 using Infrastructure.Identity;
-using Konscious.Security.Cryptography;
-using System.Text;
 
 namespace Infrastructure.Repositories
 {
@@ -14,14 +12,10 @@ namespace Infrastructure.Repositories
         {
             _hashProvider = hashProvider;
         }
-        public override Task<bool> DeleteByIdAsync(int id)
-        {
-            throw new NotImplementedException();
-        }
 
         public Task<bool> LoginAsync(string email, string password)
         {
-            var existingUser = _context.Users.SingleOrDefault(e => e.Email == email); 
+            var existingUser = _context.Users.SingleOrDefault(e => e.Email == email);
             if (existingUser == null) return Task.FromResult(false);
 
             return Task.FromResult(_hashProvider.Verify(password, existingUser.Password));
@@ -34,7 +28,8 @@ namespace Infrastructure.Repositories
 
             var hashedPassword = Convert.ToHexStringLower(_hashProvider.Hash(password));
 
-            _context.Users.Add(new User {
+            _context.Users.Add(new User
+            {
                 Email = email,
                 Password = hashedPassword
             });

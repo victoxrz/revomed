@@ -21,16 +21,12 @@ public class Login : IEndpoint
             .WithTags(tag);
     }
 
-    public async Task<Results<
-        JsonHttpResult<FluentValidation.Results.ValidationResult>, 
-        Ok<LoginResponse>, 
-        UnauthorizedHttpResult>>
-        HandleAsync([FromForm] LoginRequest loginRequest, TokenProvider provider, IUserRepository repo)
+    public async Task<IResult> HandleAsync([FromForm] LoginRequest loginRequest, TokenProvider provider, IUserRepository repo)
     {
         var result = new LoginRequestValidator().Validate(loginRequest);
         if (!result.IsValid)
         {
-            return TypedResults.Json(result, new System.Text.Json.JsonSerializerOptions(), null, StatusCodes.Status400BadRequest);
+            return TypedResults.Json(result.ToDictionary(), new System.Text.Json.JsonSerializerOptions(), null, StatusCodes.Status400BadRequest);
         }
 
         if (await repo.LoginAsync(loginRequest.Email, loginRequest.Password))
@@ -40,7 +36,7 @@ public class Login : IEndpoint
         }
         else
         {
-            return TypedResults.Unauthorized();
+            return TypedResults.Extensions.Error("Provided credentials are incorect", StatusCodes.Status401Unauthorized);
         }
     }
 

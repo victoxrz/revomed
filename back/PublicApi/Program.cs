@@ -1,5 +1,6 @@
 using AppCore.Interfaces.Repository;
 using AppCore.Interfaces.Services;
+using FluentValidation;
 using Infrastructure.Data;
 using Infrastructure.Identity;
 using Infrastructure.Repositories;
@@ -15,11 +16,13 @@ using PublicApi.Endpoints.Addons;
 using Scalar.AspNetCore;
 using System.Reflection;
 using System.Text;
+using System.Text.Json;
 
 namespace PublicApi
 {
     public sealed class Program
     {
+        // TODO: consider removing Mapster in favor for implementing manual mapping or another lightweight
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
@@ -42,6 +45,7 @@ namespace PublicApi
                 });
             });
             //builder.Services.AddAntiforgery();
+
             builder.Services.AddSingleton<TokenProvider>();
             builder.Services.AddSingleton<HashProvider>();
 
@@ -63,11 +67,19 @@ namespace PublicApi
             builder.Services.AddScoped<IPatientRepository, PatientRepository>();
             builder.Services.AddScoped<IPatientService, PatientService>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
+            builder.Services.AddScoped<IVisitRepository, VisitRepository>();
+            builder.Services.AddScoped<IVisitTemplateRepository, VisitTemplateRepository>();
 
             //builder.Services.AddDbContext<PostgresDbContext>(options =>
             //    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
             builder.Services.AddDbContext<PostgresDbContext>(options =>
                 options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+            builder.Services.ConfigureHttpJsonOptions(o =>
+            {
+                o.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+                o.SerializerOptions.DictionaryKeyPolicy = JsonNamingPolicy.CamelCase;
+            });
 
             var app = builder.Build();
 
@@ -89,6 +101,7 @@ namespace PublicApi
             app.MapEndpoints();
             app.Run();
         }
+
         internal sealed class BearerSecuritySchemeTransformer(IAuthenticationSchemeProvider authenticationSchemeProvider) : IOpenApiDocumentTransformer
         {
             public async Task TransformAsync(OpenApiDocument document, OpenApiDocumentTransformerContext context, CancellationToken cancellationToken)

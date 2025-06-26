@@ -1,46 +1,12 @@
-"use server";
-import { cookies } from "next/headers";
 import Link from "next/link";
-
-interface Patient {
-  id: number;
-  lastName: string;
-  firstName: string;
-  dateOfBirth: Date;
-  gender: string;
-  phone: string;
-}
+import ConfirmModal from "../../../components/ConfirmModal";
+import { PiWarningBold } from "react-icons/pi";
+import { patientList, patientRemove } from "./actions";
+import ErrorMessage from "@/components/ErrorMessage";
 
 export default async function Page() {
-  let data: Patient[] = [];
-  try {
-    const response = await fetch(`${process.env.API_BASE_URL}/patients/get`, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${
-          (await cookies()).get(process.env.AUTH_TOKEN_NAME!)?.value
-        }`,
-      },
-    });
-    if (!response.ok) {
-      console.log(response.statusText, await response.text());
-      return;
-    }
-    data = await response.json();
-  } catch (error) {
-    console.error("Network error:", error);
-  }
-
-  data = [
-    {
-      id: 1,
-      lastName: "Popescu",
-      firstName: "Ion",
-      dateOfBirth: new Date("1990-01-01"),
-      gender: "M",
-      phone: "0722222222",
-    },
-  ];
+  const patients = await patientList();
+  if (patients.length === 0) return <ErrorMessage />;
 
   return (
     <table className="table w-full">
@@ -55,18 +21,35 @@ export default async function Page() {
         </tr>
       </thead>
       <tbody>
-        {data.map((patient) => (
-          <tr key={patient.id}>
-            <td>{patient.lastName}</td>
-            <td>{patient.firstName}</td>
-            <td>{patient.dateOfBirth.toString()}</td>
-            <td>{patient.gender}</td>
-            <td>{patient.phone}</td>
+        {patients.map((p) => (
+          <tr key={p.id}>
+            <td>{p.lastName}</td>
+            <td>{p.firstName}</td>
+            <td>{p.birthday.toString()}</td>
+            <td>{p.gender}</td>
+            <td>{p.phone}</td>
             <td>
-              <Link href={`patients/${patient.id}`} className="btn btn-primary">
+              <Link href={`patients/${p.id}`} className="btn btn-primary mr-2">
                 Edit
               </Link>
-              {/* <button className="btn btn-danger">Delete</button> */}
+              <ConfirmModal
+                toExecute={patientRemove}
+                id={p.id}
+                openButton="Delete"
+                closeButton="Close"
+                submitButton="Delete"
+              >
+                <h3 className="font-bold text-lg text-center">
+                  Delete patient?
+                </h3>
+                <p className="py-4 text-gray-700 text-center">
+                  Are you sure you want to delete this patient?
+                </p>
+                <div role="alert" className="alert alert-warning">
+                  <PiWarningBold size={23} />
+                  <span>Warning: This action cant be undone!</span>
+                </div>
+              </ConfirmModal>
             </td>
           </tr>
         ))}
