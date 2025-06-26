@@ -1,10 +1,10 @@
 using AppCore.Interfaces.Repository;
 using AppCore.Interfaces.Services;
+using FluentValidation;
 using Infrastructure.Data;
 using Infrastructure.Identity;
 using Infrastructure.Repositories;
 using Infrastructure.Services;
-using Mapster;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.OpenApi;
@@ -16,6 +16,7 @@ using PublicApi.Endpoints.Addons;
 using Scalar.AspNetCore;
 using System.Reflection;
 using System.Text;
+using System.Text.Json;
 
 namespace PublicApi
 {
@@ -66,11 +67,19 @@ namespace PublicApi
             builder.Services.AddScoped<IPatientRepository, PatientRepository>();
             builder.Services.AddScoped<IPatientService, PatientService>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
+            builder.Services.AddScoped<IVisitRepository, VisitRepository>();
+            builder.Services.AddScoped<IVisitTemplateRepository, VisitTemplateRepository>();
 
             //builder.Services.AddDbContext<PostgresDbContext>(options =>
             //    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
             builder.Services.AddDbContext<PostgresDbContext>(options =>
                 options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+            builder.Services.ConfigureHttpJsonOptions(o =>
+            {
+                o.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+                o.SerializerOptions.DictionaryKeyPolicy = JsonNamingPolicy.CamelCase;
+            });
 
             var app = builder.Build();
 

@@ -18,7 +18,7 @@ public class Get : IEndpoint
             .WithTags(tag);
     }
 
-    public async Task<Results<Ok<GetResponse>, BadRequest>> HandleAsync([FromRoute] int id, IPatientRepository repo)
+    public async Task<IResult> HandleAsync([FromRoute] int id, IPatientRepository repo)
     {
         var patient = await repo.GetByIdAsync(id);
         if (patient == null)

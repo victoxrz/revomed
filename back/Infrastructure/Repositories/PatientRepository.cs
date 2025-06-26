@@ -1,4 +1,5 @@
 ﻿using AppCore.Interfaces.Repository;
+using AppCore.Interfaces.Services;
 using Domain.Entities;
 using Infrastructure.Data;
 using Microsoft.Extensions.Logging;
@@ -12,15 +13,15 @@ namespace Infrastructure.Repositories
             //_Patientcontext = context ?? throw new ArgumentNullException($"the PacientiDbContext is null ${nameof(context)}");
         }
 
-        public new async Task<bool> AddAsync(Patient entity)
+        public new async Task<Result<bool>> AddAsync(Patient entity)
         {
             var existingPatient = _context.Patients.FirstOrDefault(e => e.IDNP == entity.IDNP);
-            if (existingPatient != null) return false;
+            if (existingPatient != null) return new(error: "Patient with this IDNP already exists")
 
             entity.DateAdded = DateTime.UtcNow;
 
             await base.AddAsync(entity);
-            return true;
+            return new(data: true);
         }
 
         //public Task<IEnumerable<Patient>> GetAllAsync()

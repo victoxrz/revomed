@@ -1,23 +1,28 @@
 "use client";
 import Card from "../_components/Card";
-import { useState, useActionState } from "react";
+import { useState, useActionState, useEffect } from "react";
 import { FaEyeSlash, FaEye } from "react-icons/fa6";
 import { IoMail, IoKey } from "react-icons/io5";
-import { login } from "./actions";
+import { login } from "../actions";
+import toast from "react-hot-toast";
+import FormLabel from "@/components/FormLabel";
 
 export default function Page() {
   const [hidePassword, setHidePassword] = useState(true);
   const [state, action] = useActionState(login, undefined);
   const fieldErrors = state?.errors?.fieldErrors || {};
 
+  useEffect(() => {
+    if (state?.message) {
+      toast.error(state.message);
+    }
+  }, [state]);
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-linear-to-r from-cyan-200 to-blue-200">
       <form action={action}>
         <Card title={"Login"}>
-          <label className="form-control">
-            <div className="label">
-              <span className="label-text">Email Address</span>
-            </div>
+          <FormLabel label="Email Address" error={fieldErrors.email}>
             <div className="input input-bordered flex items-center gap-2">
               <IoMail size={19} />
               <input
@@ -25,17 +30,16 @@ export default function Page() {
                 type="text"
                 className="grow"
                 placeholder="Email"
+                defaultValue={state?.inputs?.email}
                 required
               />
             </div>
-            {fieldErrors.email && (
-              <div className="text-sm">{fieldErrors.email}</div>
-            )}
-          </label>
-          <label className="form-control">
-            <div className="label">
-              <span className="label-text">Password</span>
-            </div>
+          </FormLabel>
+          <FormLabel
+            className="mb-2"
+            label="Password"
+            error={fieldErrors.password}
+          >
             <div className="input input-bordered flex items-center gap-2">
               <IoKey size={19} />
               <input
@@ -52,17 +56,7 @@ export default function Page() {
                 {hidePassword ? <FaEyeSlash size={19} /> : <FaEye size={19} />}
               </div>
             </div>
-            {fieldErrors.password && (
-              <div className="text-sm">
-                <p>Password must:</p>
-                <ul>
-                  {fieldErrors.password.map((error) => (
-                    <li key={error}>- {error}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </label>
+          </FormLabel>
         </Card>
       </form>
     </div>

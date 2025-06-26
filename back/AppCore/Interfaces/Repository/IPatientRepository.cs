@@ -1,10 +1,11 @@
-﻿using Domain.Entities;
+﻿using AppCore.Interfaces.Services;
+using Domain.Entities;
 
 namespace AppCore.Interfaces.Repository
 {
     public interface IPatientRepository
     {
-        Task<bool> AddAsync(Patient pacient);
+        Task<Result<bool>> AddAsync(Patient pacient);
         // maybe not bool
         Task<bool> DeleteAsync(Patient patient);
         Task<Patient?> GetByIdAsync(int id);

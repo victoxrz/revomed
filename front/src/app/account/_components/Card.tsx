@@ -1,4 +1,4 @@
-import { IoLogInOutline } from "react-icons/io5";
+import { MdLogin } from "react-icons/md";
 
 export default function Card({
   title,
@@ -14,7 +14,7 @@ export default function Card({
         {children}
         <div className="card-actions justify-end">
           <button className="btn btn-neutral" type="submit">
-            <IoLogInOutline size={19}></IoLogInOutline>
+            <MdLogin size={19} />
             {title}
           </button>
         </div>

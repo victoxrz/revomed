@@ -9,7 +9,7 @@ export default function Layout({
   return (
     <NavBar
       menu={
-        <ul className="menu bg-white text-base-content min-h-full">
+        <ul className="menu min-h-full font-semibold">
           <li>
             <Link href="/patients">Patients</Link>
             <ul>

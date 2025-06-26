@@ -10,17 +10,17 @@ namespace PublicApi.Endpoints.Patients
         public void Configure(IEndpointRouteBuilder app)
         {
             var tag = EndpointTags.Patients.ToString();
-            app.MapPost(tag.ToLower() + "/delete/{id}", HandleAsync)
+            app.MapDelete(tag.ToLower() + "/delete/{id}", HandleAsync)
                 .DisableAntiforgery()
                 .RequireAuthorization()
                 .WithTags(tag);
         }
 
-        public async Task<Results<NotFound, Ok>> HandleAsync([FromRoute] int id, IPatientRepository repo)
+        public async Task<IResult> HandleAsync([FromRoute] int id, IPatientRepository repo)
         {
             var patient = await repo.GetByIdAsync(id);
             if (patient == null)
-                return TypedResults.NotFound();
+                return TypedResults.Extensions.Error("The patient with this id has not been found", StatusCodes.Status404NotFound);
 
             await repo.DeleteAsync(patient);
 

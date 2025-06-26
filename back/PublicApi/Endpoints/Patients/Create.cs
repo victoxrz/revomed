@@ -1,15 +1,46 @@
 ﻿using AppCore.Interfaces.Repository;
 using Domain.Entities;
-using Domain.Enums;
+using FluentValidation;
 using Mapster;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using PublicApi.Endpoints.Addons;
+using System.Text.Json;
 
 namespace PublicApi.Endpoints.Patients;
 
 public class Create : IEndpoint
 {
+    public record CreateRequest(
+        string FirstName,
+        string LastName,
+        string Patronymic,
+        DateOnly Birthday,
+        Domain.Enums.Gender Gender,
+        Domain.Enums.BloodType BloodType,
+        string IDNP,
+        string Job,
+        string StreetAddress,
+        string Country,
+        string Phone);
+
+    private class CreateRequestValidator : AbstractValidator<CreateRequest>
+    {
+        public CreateRequestValidator()
+        {
+            RuleFor(x => x.FirstName).NotEmpty().MaximumLength(30);
+            RuleFor(x => x.LastName).NotEmpty().MaximumLength(30);
+            RuleFor(x => x.Patronymic).MaximumLength(30);
+            RuleFor(x => x.Birthday).NotEmpty().GreaterThan(new DateOnly(1900, 1, 1));
+            RuleFor(x => x.Gender).IsInEnum();
+            RuleFor(x => x.BloodType).IsInEnum();
+            RuleFor(x => x.IDNP).NotEmpty().Length(13);
+            RuleFor(x => x.Job).NotEmpty().MaximumLength(30);
+            RuleFor(x => x.StreetAddress).NotEmpty().MaximumLength(30);
+            RuleFor(x => x.Country).NotEmpty().MaximumLength(30);
+            RuleFor(x => x.Phone).NotEmpty().MaximumLength(15);
+        }
+    }
+
     public void Configure(IEndpointRouteBuilder app)
     {
         var tag = EndpointTags.Patients.ToString();
@@ -21,27 +52,21 @@ public class Create : IEndpoint
 
     // JsonStringEnumConverter only works with FromBody
     // https://github.com/dotnet/aspnetcore/issues/49398
-    public async Task<Results<Created, BadRequest<string>>> HandleAsync([FromBody] CreateRequest request, IPatientRepository repo)
+    public async Task<IResult> HandleAsync([FromBody] CreateRequest request, IPatientRepository repo)
     {
-        var isSuccesful = await repo.AddAsync(request.Adapt<Patient>());
-        if (!isSuccesful)
-            return TypedResults.BadRequest("Patient with this IDNP already exists");
+        var result = new CreateRequestValidator().Validate(request);
+        if (!result.IsValid)
+        {
+            return TypedResults.Json(result.ToDictionary(), (JsonSerializerOptions?)null, null, StatusCodes.Status400BadRequest);
+        }
+
+        var response = await repo.AddAsync(request.Adapt<Patient>());
+        
+        if (!response.IsSuccessful)
+        {
+            return TypedResults.Extensions.Error(response.Error, StatusCodes.Status400BadRequest);
+        }
 
         return TypedResults.Created();
-    }
-
-    public class CreateRequest
-    {
-        public string FirstName { get; set; } = string.Empty;
-        public string LastName { get; set; } = string.Empty;
-        public DateOnly Birthday { get; set; }
-        public Gender Gender { get; set; }
-        public string Patronymic { get; set; } = string.Empty;
-        public BloodType BloodType { get; set; }
-        public string IDNP { get; set; } = string.Empty;
-        public string Job { get; set; } = string.Empty;
-        public string StreetAddress { get; set; } = string.Empty;
-        public string Country { get; set; } = string.Empty;
-        public string Phone { get; set; } = string.Empty;
     }
 }
