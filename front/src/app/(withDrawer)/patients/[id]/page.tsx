@@ -1,34 +1,55 @@
 import PatientForm from "./PatientForm";
-import Link from "next/link";
-import { patientUpdate } from "../actions";
-import { Patient } from "../types";
-import { fetchGet } from "@/lib/fetchWrap";
+import { patientCreate, patientGet } from "../actions";
 import ErrorMessage from "@/components/ErrorMessage";
+import CreateVisitForm from "../../visits/VisitForm";
+import { getVisitTemplate } from "@/app/(withDrawer)/visits/actions";
 
-export default async function Page({
+export default async function PatientOptionsPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const response = await fetchGet<Patient>(
-    `/patients/get/${(await params).id}`,
-    { withAuth: true }
-  );
-
-  if (!response.data) return <ErrorMessage />;
+  const patient = await patientGet(Number((await params).id));
+  const template = await getVisitTemplate(1);
 
   return (
-    <>
-      <PatientForm toExecute={patientUpdate} patient={response.data} />
-      <Link
-        className="btn btn-primary"
-        href={{
-          pathname: "/visits/create",
-          query: { patientId: response.data.id },
-        }}
-      >
-        Add visit
-      </Link>
-    </>
+    <div className="tabs tabs-border justify-between">
+      <input
+        type="radio"
+        name="my_tabs"
+        className="tab flex-1/2 text-primary checked:hover:text-primary"
+        aria-label="Patient"
+        defaultChecked
+      />
+      <div className="tab-content mt-6">
+        {patient ? (
+          <PatientForm
+            className="border-base-300 border rounded-field"
+            toExecute={patientCreate}
+            patient={patient}
+          />
+        ) : (
+          <ErrorMessage />
+        )}
+      </div>
+
+      <input
+        type="radio"
+        name="my_tabs"
+        className="tab flex-1/2 text-primary checked:hover:text-primary"
+        aria-label="Visit"
+      />
+      <div className="tab-content mt-6">
+        {template ? (
+          <CreateVisitForm
+            className="border-base-300 border rounded-field"
+            titles={template.titles}
+            patientId={(await params).id}
+          />
+        ) : (
+          <ErrorMessage />
+        )}
+      </div>
+    </div>
   );
 }

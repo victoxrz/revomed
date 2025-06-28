@@ -11,12 +11,12 @@ public class HashProvider(IConfiguration configuration)
     /// Hashes the provided password using the Argon2id algorithm.
     /// </summary>
     /// <param name="password">The plain text password to hash.</param>
-    /// <returns>A <see langword="byte"/>[] containing the salt and the hashed password.</returns>
-    /// <exception cref="ArgumentNullException">Thrown if the password is null.</exception>
-    /// <exception cref="EncoderFallbackException">Thrown if the password encoding fails.</exception>
-    public byte[] Hash(string password)
+    /// <returns>A <see cref="string"/> containing the salt and hashed password as a lowercase hexadecimal string.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="password"/> is <c>null</c>.</exception>
+    /// <exception cref="EncoderFallbackException"> Thrown if the password encoding fails.</exception>
+    public string Hash(string password)
     {
-        var settings = configuration.GetSection("HashSettings").Get<HashSettings>()!;
+        var settings = configuration.GetSection(nameof(HashSettings)).Get<HashSettings>()!;
 
         var saltBytes = RandomNumberGenerator.GetBytes(settings.SaltSize);
         var argon = new Argon2id(Encoding.UTF8.GetBytes(password))
@@ -27,7 +27,7 @@ public class HashProvider(IConfiguration configuration)
             Salt = saltBytes
         };
 
-        return [.. saltBytes, .. argon.GetBytes(settings.HashSize)];
+        return Convert.ToHexStringLower([.. saltBytes, .. argon.GetBytes(settings.HashSize)]);
     }
 
 
@@ -42,7 +42,7 @@ public class HashProvider(IConfiguration configuration)
     /// <exception cref="EncoderFallbackException"></exception>
     public bool Verify(string password, string hashedPassword)
     {
-        var settings = configuration.GetSection("HashSettings").Get<HashSettings>()!;
+        var settings = configuration.GetSection(nameof(HashSettings)).Get<HashSettings>()!;
 
         var argon = new Argon2id(Encoding.UTF8.GetBytes(password))
         {

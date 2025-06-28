@@ -30,7 +30,7 @@ export default async function Page() {
             <td>{p.phone}</td>
             <td>
               <Link href={`patients/${p.id}`} className="btn btn-primary mr-2">
-                Edit
+                More
               </Link>
               <ConfirmModal
                 toExecute={patientRemove}

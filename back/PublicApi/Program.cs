@@ -1,10 +1,7 @@
 using AppCore.Interfaces.Repository;
-using AppCore.Interfaces.Services;
-using FluentValidation;
 using Infrastructure.Data;
 using Infrastructure.Identity;
 using Infrastructure.Repositories;
-using Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.OpenApi;
@@ -31,6 +28,17 @@ namespace PublicApi
             {
                 options.OpenApiVersion = OpenApiSpecVersion.OpenApi3_0;
                 options.AddDocumentTransformer<BearerSecuritySchemeTransformer>();
+                options.CreateSchemaReferenceId = jsonTypeInfo =>
+                {
+                    var schemaId = OpenApiOptions.CreateDefaultSchemaReferenceId(jsonTypeInfo);
+                    var ns = jsonTypeInfo.Type.Namespace ?? "";
+                    if (schemaId != null && ns.Contains("Endpoints"))
+                    {
+                        var folder = ns.Split('.').Last();
+                        schemaId = $"{folder}{schemaId}";
+                    }
+                    return schemaId;
+                };
             });
 
             builder.Services.AddEndpoints(Assembly.GetExecutingAssembly());
@@ -44,6 +52,7 @@ namespace PublicApi
                     policy.AllowAnyOrigin();
                 });
             });
+            // TODO: finally add antiforgery, maybe
             //builder.Services.AddAntiforgery();
 
             builder.Services.AddSingleton<TokenProvider>();
@@ -52,7 +61,7 @@ namespace PublicApi
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(o =>
                 {
-                    var settings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>()!;
+                    var settings = builder.Configuration.GetSection(nameof(JwtSettings)).Get<JwtSettings>()!;
                     o.RequireHttpsMetadata = false;
                     o.TokenValidationParameters = new()
                     {
@@ -65,7 +74,6 @@ namespace PublicApi
             builder.Services.AddAuthorization();
 
             builder.Services.AddScoped<IPatientRepository, PatientRepository>();
-            builder.Services.AddScoped<IPatientService, PatientService>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IVisitRepository, VisitRepository>();
             builder.Services.AddScoped<IVisitTemplateRepository, VisitTemplateRepository>();
@@ -88,7 +96,7 @@ namespace PublicApi
             if (app.Environment.IsDevelopment())
             {
                 app.MapOpenApi();
-                app.MapScalarApiReference();
+                app.MapScalarApiReference(options => options.AddPreferredSecuritySchemes("Bearer"));
             }
 
             //app.UseHttpsRedirection();

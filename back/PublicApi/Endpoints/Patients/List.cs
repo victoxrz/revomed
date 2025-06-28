@@ -1,51 +1,29 @@
 ﻿using AppCore.Interfaces.Repository;
-using Domain.Entities;
 using Domain.Enums;
 using Mapster;
-using Microsoft.AspNetCore.Http.HttpResults;
 using PublicApi.Endpoints.Addons;
-using System.Linq.Expressions;
 
 namespace PublicApi.Endpoints.Patients;
 
-public sealed class List : IEndpoint
+public class List : BaseEndpoint
 {
-    public void Configure(IEndpointRouteBuilder app)
+    public record ListResponse(int Id, string FirstName, string LastName, DateOnly Birthday, Gender Gender, string Phone);
+
+    public override void Configure(IEndpointRouteBuilder app)
     {
-        var tag = EndpointTags.Patients.ToString();
-        app.MapGet(tag.ToLower() + "/list", HandleAsync)
+        app.MapGet(Tag.ToLower() + "/list", HandleAsync)
             .RequireAuthorization()
-            .WithTags(tag);
+            .WithTags(Tag);
 
     }
 
-    public Results<Ok<List<ListResponse>>, NotFound> HandleAsync(IPatientRepository repo)
+    public IResult HandleAsync(IPatientRepository repo)
     {
         var patients = repo.GetAll();
-        if(!patients.Any())
+        if (!patients.Any())
             return TypedResults.NotFound();
-        
-        return TypedResults.Ok(patients.Select(ListResponse.Project).ToList());
+
+        return TypedResults.Ok(patients.ProjectToType<ListResponse>());
     }
 
-    public class ListResponse
-    {
-        public int Id { get; set; }
-        public string FirstName { get; set; } = string.Empty;
-        public string LastName { get; set; } = string.Empty;
-        public DateOnly Birthday { get; set; }
-        public Gender Gender { get; set; }
-        public string Phone { get; set; } = string.Empty;
-
-        public static Expression<Func<Patient, ListResponse>> Project =>
-            patient => new ListResponse
-            {
-                Id = patient.Id,
-                FirstName = patient.FirstName,
-                LastName = patient.LastName,
-                Birthday = patient.Birthday,
-                Gender = patient.Gender,
-                Phone = patient.Phone,
-            };
-    }
 }

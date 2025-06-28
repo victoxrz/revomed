@@ -1,18 +1,15 @@
 ﻿using AppCore.Interfaces.Repository;
 using Mapster;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using PublicApi.Endpoints.Addons;
 
 namespace PublicApi.Endpoints.Visits;
 
-public class Get : IEndpoint
+public class Get
 {
     public record GetResponse(int Id, int PatientId, DateTime CreatedAt, string[] Fields);
 
     public void Configure(IEndpointRouteBuilder app)
     {
-        //var tag = EndpointTags.Visits.ToString();
         //app.MapGet(tag.ToLower() + "/get/{id}", HandleAsync)
         //    .RequireAuthorization()
         //    .WithTags(tag);

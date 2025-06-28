@@ -1,13 +1,8 @@
 "use server";
-import {
-  FormState,
-  Visit,
-  visitErrors,
-  VisitSchema,
-  VisitTemplate,
-} from "@/lib/definitions";
+import { FormState, VisitTemplate } from "@/lib/definitions";
 import { fetchGet, fetchPost } from "@/lib/fetchWrap";
 import z from "zod/v4";
+import { Visit, visitErrors, VisitSchema } from "./types";
 
 export async function createVisit(
   _state: FormState<visitErrors, Visit>,
@@ -48,7 +43,7 @@ export async function createVisit(
 
 export async function getVisitTemplate(
   templateId: number
-): Promise<VisitTemplate> {
+): Promise<VisitTemplate | undefined> {
   const response = await fetchGet<VisitTemplate>(
     `/templates/get/${templateId}`,
     {
@@ -61,6 +56,5 @@ export async function getVisitTemplate(
     return response.data;
   } else {
     console.error("Error fetching visit template: ", response.message);
-    return { titles: [] }; // Return an empty template on error
   }
 }

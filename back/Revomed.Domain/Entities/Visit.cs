@@ -7,7 +7,7 @@ public class Visit
 {
     [Key]
     public int Id { get; set; }
-    
+
     [Required]
     [ForeignKey("Patient")]
     public int PatientId { get; set; }
@@ -18,7 +18,7 @@ public class Visit
 
     [Required]
     public string[] Fields { get; set; } = [];
-    
+
     [Required]
     public DateTime CreatedAt { get; set; }
 }

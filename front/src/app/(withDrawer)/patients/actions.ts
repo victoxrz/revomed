@@ -96,3 +96,17 @@ export async function patientList(): Promise<PatientModel[]> {
 
   return response.data ?? [];
 }
+
+export async function patientGet(
+  patientId: number
+): Promise<Patient | undefined> {
+  const response = await fetchGet<Patient>(`/patients/get/${patientId}`, {
+    withAuth: true,
+  });
+
+  if (response.data) {
+    return response.data;
+  } else {
+    console.error("Error fetching visit template: ", response.message);
+  }
+}

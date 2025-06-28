@@ -19,20 +19,24 @@ namespace Infrastructure.Data
         {
             modelBuilder.Entity<Patient>().HasIndex(e => e.IDNP).IsUnique();
 
-            var visitBuilder = modelBuilder.Entity<Visit>();
+            modelBuilder.Entity<Visit>(e =>
+            {
+                e.HasOne<Patient>()
+                    .WithMany()
+                    .HasForeignKey(e => e.PatientId)
+                    .OnDelete(DeleteBehavior.Cascade);
+                e.HasOne<VisitTemplate>()
+                    .WithMany()
+                    .HasForeignKey(e => e.TemplateId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
 
-            visitBuilder.HasOne<Patient>()
-                .WithMany()
-                .HasForeignKey(e => e.PatientId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            visitBuilder.HasOne<VisitTemplate>()
-                .WithMany()
-                .HasForeignKey(e => e.TemplateId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<VisitTemplate>()
-                .Property(e => e.Titles).HasColumnType("varchar(100)[]").IsRequired();
+            modelBuilder.Entity<VisitTemplate>(e =>
+            {
+                e.Property(e => e.Titles).HasColumnType("varchar(100)[]").IsRequired();
+                e.HasIndex(e => e.Name).IsUnique();
+                e.ToTable(t => t.HasCheckConstraint("CK_VisitTemplate_Name_NotEmpty", "char_length(\"Name\") >= 1"));
+            });
         }
     }
 }

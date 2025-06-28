@@ -1,52 +1,17 @@
 ﻿using AppCore.Interfaces.Repository;
 using FluentValidation;
 using Infrastructure.Identity;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using PublicApi.Endpoints.Addons;
 
 namespace PublicApi.Endpoints.Users;
 
-public class Login : IEndpoint
+public class Login : BaseEndpoint
 {
-    public void Configure(IEndpointRouteBuilder app)
-    {
-        var tag = EndpointTags.Users.ToString();
-        app.MapPost(tag.ToLower() + "/login", HandleAsync)
-            .DisableAntiforgery()
-            .AllowAnonymous()
-            .Produces(StatusCodes.Status200OK)
-            .Produces(StatusCodes.Status401Unauthorized)
-            .Produces(StatusCodes.Status400BadRequest)
-            .WithTags(tag);
-    }
+    public record LoginRequest(string Email, string Password);
+    public record LoginResponse(string Token);
 
-    public async Task<IResult> HandleAsync([FromForm] LoginRequest loginRequest, TokenProvider provider, IUserRepository repo)
-    {
-        var result = new LoginRequestValidator().Validate(loginRequest);
-        if (!result.IsValid)
-        {
-            return TypedResults.Json(result.ToDictionary(), new System.Text.Json.JsonSerializerOptions(), null, StatusCodes.Status400BadRequest);
-        }
-
-        if (await repo.LoginAsync(loginRequest.Email, loginRequest.Password))
-        {
-            var token = provider.Create(loginRequest.Email);
-            return TypedResults.Ok(new LoginResponse() { Token = token });
-        }
-        else
-        {
-            return TypedResults.Extensions.Error("Provided credentials are incorect", StatusCodes.Status401Unauthorized);
-        }
-    }
-
-    public class LoginRequest
-    {
-        public string Email { get; set; } = string.Empty;
-        public string Password { get; set; } = string.Empty;
-    }
-
-    public class LoginRequestValidator : AbstractValidator<LoginRequest>
+    private class LoginRequestValidator : AbstractValidator<LoginRequest>
     {
         public LoginRequestValidator()
         {
@@ -58,8 +23,33 @@ public class Login : IEndpoint
         }
     }
 
-    public class LoginResponse
+    public override void Configure(IEndpointRouteBuilder app)
     {
-        public string Token { get; set; } = string.Empty;
+        app.MapPost(Tag.ToLower() + "/login", HandleAsync)
+            .DisableAntiforgery()
+            .AllowAnonymous()
+            .Produces(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status400BadRequest)
+            .WithTags(Tag);
+    }
+
+    public async Task<IResult> HandleAsync([FromForm] LoginRequest loginRequest, TokenProvider provider, IUserRepository repo)
+    {
+        var result = new LoginRequestValidator().Validate(loginRequest);
+        if (!result.IsValid)
+        {
+            return TypedResults.Json(result.ToDictionary(), (System.Text.Json.JsonSerializerOptions?)null, null, StatusCodes.Status400BadRequest);
+        }
+
+        if (await repo.LoginAsync(loginRequest.Email, loginRequest.Password))
+        {
+            var token = provider.Create(loginRequest.Email);
+            return TypedResults.Ok(new LoginResponse(token));
+        }
+        else
+        {
+            return TypedResults.Extensions.Error("Provided credentials are incorect", StatusCodes.Status401Unauthorized);
+        }
     }
 }

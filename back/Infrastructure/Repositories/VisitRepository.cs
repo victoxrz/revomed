@@ -1,5 +1,5 @@
-﻿using AppCore.Interfaces.Repository;
-using AppCore.Interfaces.Services;
+﻿using AppCore.Interfaces;
+using AppCore.Interfaces.Repository;
 using Domain.Entities;
 using Infrastructure.Data;
 using Microsoft.Extensions.Logging;
@@ -12,14 +12,14 @@ public class VisitRepository : BaseRepository<Visit>, IVisitRepository
     {
     }
 
-    public new async Task<Result<bool>> AddAsync(Visit entity)
+    public new async Task<MightFail<bool>> AddAsync(Visit entity)
     {
         var existingPatient = _context.Patients.FirstOrDefault(e => e.Id == entity.PatientId);
-        if (existingPatient == null) 
+        if (existingPatient == null)
             return new(error: "Patient with this ID not found");
 
         var template = _context.Templates.FirstOrDefault(e => e.Id == entity.TemplateId);
-        if (template?.Titles.Length != entity.Fields.Length) 
+        if (template?.Titles.Length != entity.Fields.Length)
             return new(error: "Fields count does not match template titles count");
 
         entity.CreatedAt = DateTime.UtcNow;

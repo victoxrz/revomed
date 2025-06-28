@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
 using System.Text.Json;
 
 namespace PublicApi.Endpoints.Addons;

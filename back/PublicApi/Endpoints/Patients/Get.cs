@@ -1,21 +1,18 @@
 ﻿using AppCore.Interfaces.Repository;
-using Domain.Entities;
 using Domain.Enums;
 using Mapster;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using PublicApi.Endpoints.Addons;
 
 namespace PublicApi.Endpoints.Patients;
 
-public class Get : IEndpoint
+public class Get : BaseEndpoint
 {
-    public void Configure(IEndpointRouteBuilder app)
+    public override void Configure(IEndpointRouteBuilder app)
     {
-        var tag = EndpointTags.Patients.ToString();
-        app.MapGet(tag.ToLower() + "/get/{id}", HandleAsync)
+        app.MapGet(Tag.ToLower() + "/get/{id}", HandleAsync)
             .RequireAuthorization()
-            .WithTags(tag);
+            .WithTags(Tag);
     }
 
     public async Task<IResult> HandleAsync([FromRoute] int id, IPatientRepository repo)
@@ -33,7 +30,7 @@ public class GetResponse
     public int Id { get; set; }
     public string LastName { get; set; } = string.Empty;
     public string FirstName { get; set; } = string.Empty;
-    public string Patronymic {  get; set; } = string.Empty;
+    public string Patronymic { get; set; } = string.Empty;
     public DateOnly Birthday { get; set; }
     public Gender Gender { get; set; }
     public string IDNP { get; set; } = string.Empty;

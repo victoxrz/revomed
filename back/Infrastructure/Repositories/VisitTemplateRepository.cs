@@ -1,11 +1,6 @@
 ﻿using AppCore.Interfaces.Repository;
 using Domain.Entities;
 using Infrastructure.Data;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Infrastructure.Repositories;
 
@@ -13,5 +8,11 @@ public class VisitTemplateRepository : BaseRepository<VisitTemplate>, IVisitTemp
 {
     public VisitTemplateRepository(PostgresDbContext context) : base(context)
     {
+    }
+
+    public IQueryable<VisitTemplate> SearchByNameAsync(string name)
+    {
+        name = name.ToLower();
+        return _context.Templates.Where(e => e.Name.ToLower().Contains(name));
     }
 }

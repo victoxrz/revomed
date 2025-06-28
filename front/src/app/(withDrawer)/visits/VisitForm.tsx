@@ -1,14 +1,16 @@
 "use client";
-import { createVisit } from "@/actions/VisitController";
+import { createVisit } from "@/app/(withDrawer)/visits/actions";
 import FormLabel from "@/components/FormLabel";
 import { useActionState, useEffect } from "react";
 import toast from "react-hot-toast";
 import { FaSave } from "react-icons/fa";
 
 export default function CreateVisitForm({
+  className,
   titles,
   patientId,
 }: {
+  className?: string;
   titles: string[];
   patientId: string;
 }) {
@@ -26,7 +28,10 @@ export default function CreateVisitForm({
   }, [state]);
 
   return (
-    <form className="w-full max-w-2xl px-4" action={action}>
+    <form
+      className={`w-full mx-auto max-w-2xl p-6 ${className}`}
+      action={action}
+    >
       <input type="hidden" name="patientId" value={patientId} />
       <input type="hidden" name="templateId" value={1} />
 

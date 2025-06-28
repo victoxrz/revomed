@@ -1,5 +1,5 @@
-import { getVisitTemplate } from "@/actions/VisitController";
-import CreateVisitForm from "../_form";
+import { getVisitTemplate } from "@/app/(withDrawer)/visits/actions";
+import CreateVisitForm from "../VisitForm";
 import ErrorMessage from "@/components/ErrorMessage";
 
 export default async function CreateVisitPage({
@@ -7,8 +7,8 @@ export default async function CreateVisitPage({
 }: {
   searchParams: Promise<{ [key: string]: string | undefined }>;
 }) {
-  const titles = (await getVisitTemplate(1)).titles;
-  if (titles.length === 0) return <ErrorMessage />;
+  const template = await getVisitTemplate(1);
+  if (!template) return <ErrorMessage />;
 
   const patientId = (await searchParams).patientId;
   if (!patientId) return <ErrorMessage />;
@@ -16,7 +16,7 @@ export default async function CreateVisitPage({
   return (
     <div className="p-4 max-w-3xl mx-auto">
       <h1 className="text-2xl font-bold mb-6">Add new visit</h1>
-      <CreateVisitForm titles={titles} patientId={patientId} />
+      <CreateVisitForm titles={template.titles} patientId={patientId} />
     </div>
   );
 }

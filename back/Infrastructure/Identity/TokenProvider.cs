@@ -8,11 +8,11 @@ namespace Infrastructure.Identity;
 
 public sealed class TokenProvider(IConfiguration configuration)
 {
-    // TODO: pass an object rather than proprietes
+    // TODO: pass an object rather than properties
     public string Create(string email)
     {
-        var settings = configuration.GetSection("JwtSettings").Get<JwtSettings>()!;
-
+        var settings = configuration.GetSection(nameof(JwtSettings)).Get<JwtSettings>()!;
+        
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(

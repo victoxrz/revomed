@@ -1,11 +1,10 @@
-﻿using AppCore.Interfaces.Services;
-using Domain.Entities;
+﻿using Domain.Entities;
 
 namespace AppCore.Interfaces.Repository;
 
 public interface IVisitRepository
 {
-    Task<Result<bool>> AddAsync(Visit visit);
+    Task<MightFail<bool>> AddAsync(Visit visit);
     // maybe not bool
     //Task<bool> DeleteAsync(Visit visit);
     Task<Visit?> GetByIdAsync(int id);
