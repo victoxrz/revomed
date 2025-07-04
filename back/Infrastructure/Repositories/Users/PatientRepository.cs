@@ -1,10 +1,10 @@
 ﻿using AppCore.Interfaces;
 using AppCore.Interfaces.Repository;
-using Domain.Entities;
+using Domain.Entities.Users;
 using Infrastructure.Data;
 using Microsoft.Extensions.Logging;
 
-namespace Infrastructure.Repositories
+namespace Infrastructure.Repositories.Users
 {
     public class PatientRepository : BaseRepository<Patient>, IPatientRepository
     {
@@ -15,8 +15,8 @@ namespace Infrastructure.Repositories
 
         public new async Task<MightFail<bool>> AddAsync(Patient entity)
         {
-            var existingPatient = _context.Patients.FirstOrDefault(e => e.IDNP == entity.IDNP);
-            if (existingPatient != null) return new(error: "Patient with this IDNP already exists");
+            var exists = _context.Patients.Any(e => e.IDNP == entity.IDNP);
+            if (exists) return new(error: "Patient with this IDNP already exists");
 
             entity.DateAdded = DateTime.UtcNow;
 
@@ -24,9 +24,15 @@ namespace Infrastructure.Repositories
             return new(data: true);
         }
 
-        //public Task<IEnumerable<Patient>> GetAllAsync()
-        //{
-        //    throw new NotImplementedException();
-        //}
+        public new async Task<MightFail<bool>> UpdateAsync(Patient entity)
+        {
+            var exists = _context.Patients.Any(e => e.IDNP == entity.IDNP && e.Id != entity.Id);
+            if (exists) return new(error: "Patient with this IDNP already exists");
+
+            entity.DateAdded = DateTime.UtcNow;
+
+            await base.UpdateAsync(entity);
+            return new(data: true);
+        }
     }
 }

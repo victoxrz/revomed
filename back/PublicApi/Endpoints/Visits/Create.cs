@@ -1,9 +1,10 @@
 ﻿using AppCore.Interfaces.Repository;
-using Domain.Entities;
+using Domain.Enums;
 using FluentValidation;
-using Mapster;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.JsonWebTokens;
 using PublicApi.Endpoints.Addons;
+using System.Security.Claims;
 
 namespace PublicApi.Endpoints.Visits;
 
@@ -16,6 +17,7 @@ public class Create : BaseEndpoint
         public CreateRequestValidator()
         {
             RuleFor(x => x.PatientId).GreaterThan(0);
+            RuleFor(x => x.TemplateId).GreaterThan(0);
             RuleFor(x => x.Fields).NotEmpty();
             RuleForEach(x => x.Fields).NotEmpty();
         }
@@ -25,11 +27,11 @@ public class Create : BaseEndpoint
     {
         app.MapPost(Tag.ToLower() + "/create", HandleAsync)
             .DisableAntiforgery()
-            .RequireAuthorization()
+            .RequireRoles(UserRole.Medic)
             .WithTags(Tag);
     }
 
-    public async Task<IResult> HandleAsync([FromBody] CreateRequest request, IVisitRepository repo)
+    public async Task<IResult> HandleAsync([FromBody] CreateRequest request, HttpContext context, IVisitRepository visitRepo, IMedicRepository medicRepo)
     {
         var result = new CreateRequestValidator().Validate(request);
         if (!result.IsValid)
@@ -37,12 +39,25 @@ public class Create : BaseEndpoint
             return TypedResults.Json(result.ToDictionary(), (System.Text.Json.JsonSerializerOptions?)null, null, StatusCodes.Status400BadRequest);
         }
 
-        var response = await repo.AddAsync(request.Adapt<Visit>());
+        var email = context.User.FindFirstValue(JwtRegisteredClaimNames.Email);
+        if (email == null)
+            return TypedResults.Extensions.Error("Try to log in again", StatusCodes.Status400BadRequest);
+
+        var medic = await medicRepo.FindByEmailAsync(email);
+        if (medic == null)
+            return TypedResults.Extensions.Error("Try to log in again", StatusCodes.Status400BadRequest);
+
+        var response = await visitRepo.AddAsync(new()
+        {
+            PatientId = request.PatientId,
+            MedicId = medic.UserId,
+            TemplateId = medic.TemplateId,
+            Fields = request.Fields,
+        });
 
         if (!response.IsSuccessful)
-        {
             return TypedResults.Extensions.Error(response.Error, StatusCodes.Status400BadRequest);
-        }
+
         return TypedResults.Created();
     }
 }

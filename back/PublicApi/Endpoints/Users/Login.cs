@@ -1,7 +1,10 @@
 ﻿using AppCore.Interfaces.Repository;
+using Domain.Enums;
 using FluentValidation;
+using Infrastructure.Extensions;
 using Infrastructure.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using PublicApi.Endpoints.Addons;
 
 namespace PublicApi.Endpoints.Users;
@@ -34,7 +37,9 @@ public class Login : BaseEndpoint
             .WithTags(Tag);
     }
 
-    public async Task<IResult> HandleAsync([FromForm] LoginRequest loginRequest, TokenProvider provider, IUserRepository repo)
+    private record UserDto(string Password, UserRole UserRole, int? TemplateId);
+
+    public async Task<IResult> HandleAsync([FromForm] LoginRequest loginRequest, HashProvider hashProvider, TokenProvider tokenProvider, IUserRepository repo)
     {
         var result = new LoginRequestValidator().Validate(loginRequest);
         if (!result.IsValid)
@@ -42,14 +47,22 @@ public class Login : BaseEndpoint
             return TypedResults.Json(result.ToDictionary(), (System.Text.Json.JsonSerializerOptions?)null, null, StatusCodes.Status400BadRequest);
         }
 
-        if (await repo.LoginAsync(loginRequest.Email, loginRequest.Password))
+        // TODO: think about a way to remove useless joins
+        var user = await repo.FindByEmail(loginRequest.Email).SingleOrDefaultAsync(e => new UserDto(e.Password, e.UserRole, (e.Medic == null) ? null : e.Medic.TemplateId));
+        if (user == null)
         {
-            var token = provider.Create(loginRequest.Email);
-            return TypedResults.Ok(new LoginResponse(token));
+            return TypedResults.Extensions.Error("The user was not found", StatusCodes.Status404NotFound);
         }
-        else
+
+        // TODO: i would incorporate this in login??
+        if (!hashProvider.Verify(loginRequest.Password, user.Password))
         {
             return TypedResults.Extensions.Error("Provided credentials are incorect", StatusCodes.Status401Unauthorized);
         }
+
+        var token = tokenProvider.Create(loginRequest.Email, user.UserRole, user.TemplateId);
+
+        return TypedResults.Ok(new LoginResponse(token));
     }
 }
+

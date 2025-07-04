@@ -1,4 +1,5 @@
 ﻿using AppCore.Interfaces.Repository;
+using Domain.Entities.Users;
 using Domain.Enums;
 using Mapster;
 using Microsoft.AspNetCore.Mvc;
@@ -8,11 +9,27 @@ namespace PublicApi.Endpoints.Patients;
 
 public class Get : BaseEndpoint
 {
+    public record GetResponse(
+        int Id,
+        string LastName,
+        string FirstName,
+        string Patronymic,
+        DateOnly Birthday,
+        Gender Gender,
+        string IDNP,
+        string Job,
+        string Phone,
+        string StreetAddress,
+        string Country,
+        BloodType BloodType);
+
     public override void Configure(IEndpointRouteBuilder app)
     {
         app.MapGet(Tag.ToLower() + "/get/{id}", HandleAsync)
             .RequireAuthorization()
             .WithTags(Tag);
+
+        TypeAdapterConfig<Patient, GetResponse>.NewConfig().Map(d => d.IDNP, s => s.IDNP).Compile();
     }
 
     public async Task<IResult> HandleAsync([FromRoute] int id, IPatientRepository repo)
@@ -23,20 +40,4 @@ public class Get : BaseEndpoint
 
         return TypedResults.Ok(patient.Adapt<GetResponse>());
     }
-}
-
-public class GetResponse
-{
-    public int Id { get; set; }
-    public string LastName { get; set; } = string.Empty;
-    public string FirstName { get; set; } = string.Empty;
-    public string Patronymic { get; set; } = string.Empty;
-    public DateOnly Birthday { get; set; }
-    public Gender Gender { get; set; }
-    public string IDNP { get; set; } = string.Empty;
-    public string Job { get; set; } = string.Empty;
-    public string Phone { get; set; } = string.Empty;
-    public string StreetAddress { get; set; } = string.Empty;
-    public string Country { get; set; } = string.Empty;
-    public BloodType BloodType { get; set; }
 }

@@ -1,8 +1,9 @@
 "use server";
-import { FormState, VisitTemplate } from "@/lib/definitions";
-import { fetchGet, fetchPost } from "@/lib/fetchWrap";
+import { FormState } from "@/lib/definitions";
+import { fetchPost } from "@/lib/fetchWrap";
 import z from "zod/v4";
 import { Visit, visitErrors, VisitSchema } from "./types";
+import { redirect } from "next/navigation";
 
 export async function createVisit(
   _state: FormState<visitErrors, Visit>,
@@ -13,15 +14,12 @@ export async function createVisit(
     patientId: Number(formData.get("patientId")),
     templateId: Number(formData.get("templateId")),
   };
-
   const validatedFields = VisitSchema.safeParse(data);
-  console.dir(data, { depth: null });
 
   if (!validatedFields.success) {
-    console.dir(`Validated Fields1:${validatedFields.error}`, { depth: null });
     return {
-      errors: z.flattenError(validatedFields.error),
       inputs: data,
+      errors: z.flattenError(validatedFields.error),
     };
   }
 
@@ -38,23 +36,6 @@ export async function createVisit(
     };
   }
 
-  // redirect("/patients");
-}
-
-export async function getVisitTemplate(
-  templateId: number
-): Promise<VisitTemplate | undefined> {
-  const response = await fetchGet<VisitTemplate>(
-    `/templates/get/${templateId}`,
-    {
-      withAuth: true,
-    }
-  );
-
-  console.log("Visit Template Response:", response?.data);
-  if (response.data) {
-    return response.data;
-  } else {
-    console.error("Error fetching visit template: ", response.message);
-  }
+  // TODO: sometimes its better to show succesful message
+  redirect(`/patients/${validatedFields.data.patientId}`);
 }

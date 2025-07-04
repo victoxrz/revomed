@@ -1,26 +1,23 @@
 "use client";
-import { createVisit } from "@/app/(withDrawer)/visits/actions";
 import FormLabel from "@/components/FormLabel";
 import { useActionState, useEffect } from "react";
 import toast from "react-hot-toast";
 import { FaSave } from "react-icons/fa";
+import { createVisit } from "./actions";
+import { usePatientTabsContext } from "../patients/[id]/context";
 
-export default function CreateVisitForm({
-  className,
-  titles,
-  patientId,
-}: {
-  className?: string;
-  titles: string[];
-  patientId: string;
-}) {
+export default function CreateVisitForm({ className }: { className?: string }) {
+  const ctx = usePatientTabsContext();
+
   const [state, action] = useActionState(createVisit, {
-    inputs: { fields: [], patientId: Number(patientId), templateId: 1 },
+    inputs: null,
+    message: "",
   });
-
   const fieldErrors = state?.errors?.fieldErrors || {};
+  const inputs = state.inputs || {
+    fields: [],
+  };
 
-  // TODO: find out if it rerenders or not
   useEffect(() => {
     if (state?.message) {
       toast.error(state.message);
@@ -32,16 +29,16 @@ export default function CreateVisitForm({
       className={`w-full mx-auto max-w-2xl p-6 ${className}`}
       action={action}
     >
-      <input type="hidden" name="patientId" value={patientId} />
-      <input type="hidden" name="templateId" value={1} />
+      <input type="hidden" name="patientId" value={ctx.patient.id} />
+      <input type="hidden" name="templateId" value={ctx.template.id} />
 
-      {titles.map((element, index) => {
+      {ctx.template.titles.map((element, index) => {
         return (
           <FormLabel key={element} label={element}>
             <textarea
-              name={"fields"}
+              name="fields"
               className="textarea textarea-bordered grow flex mb-4 w-full"
-              defaultValue={state?.inputs.fields[index]}
+              defaultValue={inputs.fields[index]}
               required
             />
           </FormLabel>

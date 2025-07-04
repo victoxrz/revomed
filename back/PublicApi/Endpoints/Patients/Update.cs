@@ -59,8 +59,12 @@ public class Update : BaseEndpoint
         if (patient == null)
             return TypedResults.NotFound();
 
-        await repo.UpdateAsync(request.Adapt(patient));
+        var response = await repo.UpdateAsync(request.Adapt(patient));
+        if (!response.IsSuccessful)
+        {
+            return TypedResults.Extensions.Error(response.Error, StatusCodes.Status400BadRequest);
+        }
 
-        return TypedResults.Ok();
+        return TypedResults.Ok(request);
     }
 }

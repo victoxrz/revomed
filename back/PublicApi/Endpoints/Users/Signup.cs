@@ -44,7 +44,7 @@ public class Signup : BaseEndpoint
 
         if (await repo.SignupAsync(signupRequest.Email, signupRequest.Password))
         {
-            var token = provider.Create(signupRequest.Email);
+            var token = provider.Create(signupRequest.Email, Domain.Enums.UserRole.Patient);
             return TypedResults.Ok(new SignupResponse(token));
         }
         else

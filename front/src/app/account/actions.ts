@@ -37,7 +37,13 @@ export async function login(
     }
   );
 
-  if (response.data) {
+  if (response.message)
+    return {
+      message: response.message,
+      inputs: validatedFields.data,
+    };
+
+  if (response.data)
     (await cookies()).set({
       name: process.env.AUTH_TOKEN_NAME!,
       value: response.data.token,
@@ -45,12 +51,6 @@ export async function login(
       secure: true,
       sameSite: "strict",
     });
-  } else {
-    return {
-      message: response.message,
-      inputs: validatedFields.data,
-    };
-  }
 
   redirect("/");
 }
@@ -81,7 +81,13 @@ export async function signup(
     }
   );
 
-  if (response.data) {
+  if (response.message)
+    return {
+      message: response.message,
+      inputs: validatedFields.data,
+    };
+
+  if (response.data)
     (await cookies()).set({
       name: process.env.AUTH_TOKEN_NAME!,
       value: response.data.token,
@@ -89,12 +95,6 @@ export async function signup(
       secure: true,
       sameSite: "strict",
     });
-  } else {
-    return {
-      message: response.message,
-      inputs: validatedFields.data,
-    };
-  }
 
   redirect("/patients");
 }

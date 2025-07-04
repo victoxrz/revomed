@@ -12,7 +12,7 @@ public class Get : BaseEndpoint
     public override void Configure(IEndpointRouteBuilder app)
     {
         app.MapGet(Tag.ToLower() + "/get/{id}", HandleAsync)
-            //.RequireAuthorization()
+            .RequireAuthorization()
             .WithTags(Tag);
     }
 

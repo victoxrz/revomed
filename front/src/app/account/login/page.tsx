@@ -1,19 +1,22 @@
 "use client";
-import Card from "../_components/Card";
-import { useState, useActionState, useEffect, use } from "react";
+import { useState, useActionState, useEffect } from "react";
 import { FaEyeSlash, FaEye } from "react-icons/fa6";
 import { IoMail, IoKey } from "react-icons/io5";
-import { login } from "../actions";
 import toast from "react-hot-toast";
 import FormLabel from "@/components/FormLabel";
+import { login } from "../actions";
+import Card from "../_components/Card";
 
 export default function Page() {
   const [hidePassword, setHidePassword] = useState(true);
-  const [state, action] = useActionState(login, undefined);
-  const fieldErrors = state?.errors?.fieldErrors || {};
+  const [state, action] = useActionState(login, {
+    inputs: null,
+    message: "",
+  });
+  const fieldErrors = state.errors?.fieldErrors || {};
 
   useEffect(() => {
-    if (state?.message) {
+    if (state.message) {
       toast.error(state.message);
     }
   }, [state]);
@@ -30,7 +33,7 @@ export default function Page() {
                 type="text"
                 className="grow"
                 placeholder="Email"
-                defaultValue={state?.inputs?.email}
+                defaultValue={state.inputs?.email}
                 required
               />
             </div>

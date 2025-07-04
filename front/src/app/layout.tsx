@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import ToasterWrapper from "@/components/ToasterWrapper";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import QueryProvider from "@/components/QueryProvider";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -18,7 +20,6 @@ export const metadata: Metadata = {
   title: "Revomed",
   description: "Revomed - revolutionize medicine",
 };
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -30,7 +31,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ToasterWrapper />
-        {children}
+        <QueryProvider>{children}</QueryProvider>
       </body>
     </html>
   );

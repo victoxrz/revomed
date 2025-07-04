@@ -3,8 +3,8 @@ import { useActionState, useEffect } from "react";
 import { FormState } from "@/lib/definitions";
 import toast from "react-hot-toast";
 import FormLabel from "@/components/FormLabel";
-import { Patient, patientErrors } from "../types";
 import { FaSave } from "react-icons/fa";
+import { patientErrors, Patient } from "./types";
 
 export default function PatientForm({
   className,
@@ -16,17 +16,20 @@ export default function PatientForm({
     _state: FormState<patientErrors, Patient>,
     formData: FormData
   ) => Promise<FormState<patientErrors, Patient>>;
-  patient: Patient;
+  patient: Patient | null;
 }) {
-  const [state, action] = useActionState(toExecute, { inputs: patient });
+  const [state, action] = useActionState(toExecute, {
+    inputs: patient,
+    message: "",
+  });
 
   useEffect(() => {
-    if (state?.message) {
+    if (state.message) {
       toast.error(state.message);
     }
   }, [state]);
 
-  const fieldErrors = state?.errors?.fieldErrors || {};
+  const fieldErrors = state.errors?.fieldErrors || {};
 
   return (
     <form
@@ -40,7 +43,7 @@ export default function PatientForm({
             <input
               name="lastName"
               type="text"
-              defaultValue={state?.inputs?.lastName}
+              defaultValue={state.inputs?.lastName}
               required
             />
           </div>
@@ -51,7 +54,7 @@ export default function PatientForm({
             <input
               name="firstName"
               type="text"
-              defaultValue={state?.inputs?.firstName}
+              defaultValue={state.inputs?.firstName}
               required
             />
           </div>
@@ -62,7 +65,7 @@ export default function PatientForm({
             <input
               name="patronymic"
               type="text"
-              defaultValue={state?.inputs?.patronymic}
+              defaultValue={state.inputs?.patronymic}
             />
           </div>
         </FormLabel>
@@ -72,7 +75,7 @@ export default function PatientForm({
             name="birthday"
             type="date"
             className="input flex mb-4 w-full"
-            defaultValue={state?.inputs?.birthday.toString()}
+            defaultValue={state.inputs?.birthday.toString()}
             required
           />
         </FormLabel>
@@ -81,7 +84,7 @@ export default function PatientForm({
           <select
             className="select flex mb-4"
             name="gender"
-            defaultValue={state?.inputs?.gender}
+            defaultValue={state.inputs?.gender}
             required
           >
             <option value="Male">Male</option>
@@ -94,7 +97,7 @@ export default function PatientForm({
           <select
             className="select flex mb-4"
             name="bloodType"
-            defaultValue={state?.inputs?.bloodType}
+            defaultValue={state.inputs?.bloodType}
             required
           >
             <option value="A+">A+</option>
@@ -113,7 +116,7 @@ export default function PatientForm({
             <input
               name="idnp"
               type="text"
-              defaultValue={state?.inputs?.idnp}
+              defaultValue={state.inputs?.idnp}
               required
             />
           </div>
@@ -124,7 +127,7 @@ export default function PatientForm({
             <input
               name="phone"
               type="text"
-              defaultValue={state?.inputs?.phone}
+              defaultValue={state.inputs?.phone}
               required
             />
           </div>
@@ -135,7 +138,7 @@ export default function PatientForm({
             <input
               name="job"
               type="text"
-              defaultValue={state?.inputs?.job}
+              defaultValue={state.inputs?.job}
               required
             />
           </div>
@@ -146,7 +149,7 @@ export default function PatientForm({
             <input
               name="streetAddress"
               type="text"
-              defaultValue={state?.inputs?.streetAddress}
+              defaultValue={state.inputs?.streetAddress}
               required
             />
           </div>
@@ -157,7 +160,7 @@ export default function PatientForm({
             <input
               name="country"
               type="text"
-              defaultValue={state?.inputs?.country}
+              defaultValue={state.inputs?.country}
               required
             />
           </div>

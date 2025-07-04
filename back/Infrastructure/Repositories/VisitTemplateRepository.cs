@@ -10,9 +10,9 @@ public class VisitTemplateRepository : BaseRepository<VisitTemplate>, IVisitTemp
     {
     }
 
-    public IQueryable<VisitTemplate> SearchByNameAsync(string name)
+    public IQueryable<VisitTemplate> SearchBySpecialtyAsync(string name)
     {
         name = name.ToLower();
-        return _context.Templates.Where(e => e.Name.ToLower().Contains(name));
+        return _context.Templates.Where(e => e.MedicSpecialty.ToLower().Contains(name));
     }
 }

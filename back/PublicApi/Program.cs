@@ -2,10 +2,12 @@ using AppCore.Interfaces.Repository;
 using Infrastructure.Data;
 using Infrastructure.Identity;
 using Infrastructure.Repositories;
+using Infrastructure.Repositories.Users;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using Microsoft.OpenApi.Models;
@@ -70,6 +72,7 @@ namespace PublicApi
                         ValidAudience = settings.Audience,
                         ClockSkew = TimeSpan.Zero
                     };
+                    o.MapInboundClaims = JsonWebTokenHandler.DefaultMapInboundClaims; // idk, some magic for claims
                 });
             builder.Services.AddAuthorization();
 
@@ -77,6 +80,7 @@ namespace PublicApi
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IVisitRepository, VisitRepository>();
             builder.Services.AddScoped<IVisitTemplateRepository, VisitTemplateRepository>();
+            builder.Services.AddScoped<IMedicRepository, MedicRepository>();
 
             //builder.Services.AddDbContext<PostgresDbContext>(options =>
             //    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));

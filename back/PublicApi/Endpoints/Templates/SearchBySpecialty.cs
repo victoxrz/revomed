@@ -5,9 +5,9 @@ using PublicApi.Endpoints.Addons;
 
 namespace PublicApi.Endpoints.Templates;
 
-public class SearchByName : BaseEndpoint
+public class SearchBySpecialty : BaseEndpoint
 {
-    public record SearchResponse(int Id, string Name);
+    public record SearchResponse(int Id, string MedicSpecialty, string[] Titles);
 
     public override void Configure(IEndpointRouteBuilder app)
     {
@@ -18,7 +18,7 @@ public class SearchByName : BaseEndpoint
 
     public IResult HandleAsync([FromQuery] string name, IVisitTemplateRepository repo)
     {
-        var template = repo.SearchByNameAsync(name);
+        var template = repo.SearchBySpecialtyAsync(name);
         return template == null ? TypedResults.NotFound() : TypedResults.Ok(template.ProjectToType<SearchResponse>());
     }
 }

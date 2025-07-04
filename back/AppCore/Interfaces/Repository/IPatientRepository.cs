@@ -1,4 +1,4 @@
-﻿using Domain.Entities;
+﻿using Domain.Entities.Users;
 
 namespace AppCore.Interfaces.Repository
 {
@@ -9,7 +9,7 @@ namespace AppCore.Interfaces.Repository
         Task<bool> DeleteAsync(Patient patient);
         Task<Patient?> GetByIdAsync(int id);
         // maybe not bool
-        Task<bool> UpdateAsync(Patient patient);
+        Task<MightFail<bool>> UpdateAsync(Patient patient);
         IQueryable<Patient> GetAll();
     }
 }

@@ -1,5 +1,5 @@
 ﻿using AppCore.Interfaces.Repository;
-using Domain.Entities;
+using Domain.Entities.Users;
 using FluentValidation;
 using Mapster;
 using Microsoft.AspNetCore.Mvc;
