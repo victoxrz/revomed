@@ -17,7 +17,6 @@ export async function patientCreate(
 
   const validatedFields = PatientSchema.safeParse(data);
 
-  console.dir(data, { depth: null });
   console.log("succesful:", validatedFields.success);
   if (!validatedFields.success) {
     return {
@@ -26,7 +25,7 @@ export async function patientCreate(
     };
   }
 
-  const response = await fetchPost("/patients/create", data, {
+  const response = await fetchPost("/patients/create", validatedFields.data, {
     withAuth: true,
   });
 
@@ -95,4 +94,15 @@ export async function patientList(): Promise<PatientModel[]> {
   });
 
   return response.data ?? [];
+}
+
+export async function patientGet(patientId: number): Promise<Patient | null> {
+  const response = await fetchGet<Patient>(`/patients/get/${patientId}`, {
+    withAuth: true,
+  });
+
+  if (response.message)
+    console.error("Error fetching visit template: ", response.message);
+
+  return response.data;
 }

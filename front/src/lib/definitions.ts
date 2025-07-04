@@ -1,26 +1,25 @@
 import { z } from "zod/v4";
 
+// export type FormState<TErrors, TInputs> = {
+//   errors?: TErrors;
+//   inputs: TInputs | null;
+//   message?: string;
+// };
+
 export type FormState<TErrors, TInputs> =
   | {
-      errors?: TErrors;
-      inputs: TInputs;
-      message?: string;
+      inputs: TInputs | null;
+      errors: TErrors;
+      message?: never;
     }
-  | undefined;
-
-export const VisitSchema = z.object({
-  patientId: z.coerce
-    .number()
-    .positive("Patient ID must be a positive integer"),
-  templateId: z.coerce
-    .number()
-    .positive("Template ID must be a positive integer"),
-  fields: z.array(z.string().nonempty("Fields must not be empty")),
-});
-export type Visit = z.infer<typeof VisitSchema>;
-export type visitErrors = z.ZodFlattenedError<Visit>;
+  | {
+      inputs: TInputs | null;
+      errors?: never;
+      message: string;
+    };
 
 export const VisitTemplateSchema = z.object({
+  id: z.coerce.number(),
   titles: z.array(z.string().nonempty("Title must not be empty")),
 });
 export type VisitTemplate = z.infer<typeof VisitTemplateSchema>;

@@ -1,24 +1,31 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
+﻿using AppCore.Interfaces.Repository;
+using Domain.Entities.Users;
+using Mapster;
+using Microsoft.EntityFrameworkCore;
 using PublicApi.Endpoints.Addons;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace PublicApi.Endpoints.Users;
 
-// might rename it
-public class Profile : IEndpoint
+public class Profile : BaseEndpoint
 {
-    public void Configure(IEndpointRouteBuilder app)
+    private record GetResponse(string Email, Domain.Enums.UserRole UserRole, int TemplateId);
+    public override void Configure(IEndpointRouteBuilder app)
     {
-        var tag = EndpointTags.Users.ToString();
-        app.MapGet(tag.ToLower() + "/profile", HandleAsync)
+        app.MapGet(Tag.ToLower() + "/profile", HandleAsync)
             .RequireAuthorization()
-            .Produces(StatusCodes.Status200OK)
-            .Produces(StatusCodes.Status401Unauthorized)
-            .WithTags(tag);
+            .WithTags(Tag);
     }
 
-    public ContentHttpResult HandleAsync(HttpRequest request)
+    public async Task<IResult> HandleAsync(HttpContext context, IUserRepository repo)
     {
-        request.Headers.TryGetValue("Authorization", out var token);
-        return TypedResults.Text(token);
+        var email = context.User.FindFirstValue(JwtRegisteredClaimNames.Email);
+        if (email == null)
+            return TypedResults.Extensions.Error("Try to log in again", StatusCodes.Status400BadRequest);
+
+        var user = await repo.FindByEmail(email).Include(e => e.Medic).SingleOrDefaultAsync();
+        
+        return TypedResults.Ok(user.Adapt<GetResponse>());
     }
 }

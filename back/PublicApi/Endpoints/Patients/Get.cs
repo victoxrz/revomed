@@ -1,21 +1,35 @@
 ﻿using AppCore.Interfaces.Repository;
-using Domain.Entities;
+using Domain.Entities.Users;
 using Domain.Enums;
 using Mapster;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using PublicApi.Endpoints.Addons;
 
 namespace PublicApi.Endpoints.Patients;
 
-public class Get : IEndpoint
+public class Get : BaseEndpoint
 {
-    public void Configure(IEndpointRouteBuilder app)
+    public record GetResponse(
+        int Id,
+        string LastName,
+        string FirstName,
+        string Patronymic,
+        DateOnly Birthday,
+        Gender Gender,
+        string IDNP,
+        string Job,
+        string Phone,
+        string StreetAddress,
+        string Country,
+        BloodType BloodType);
+
+    public override void Configure(IEndpointRouteBuilder app)
     {
-        var tag = EndpointTags.Patients.ToString();
-        app.MapGet(tag.ToLower() + "/get/{id}", HandleAsync)
+        app.MapGet(Tag.ToLower() + "/get/{id}", HandleAsync)
             .RequireAuthorization()
-            .WithTags(tag);
+            .WithTags(Tag);
+
+        TypeAdapterConfig<Patient, GetResponse>.NewConfig().Map(d => d.IDNP, s => s.IDNP).Compile();
     }
 
     public async Task<IResult> HandleAsync([FromRoute] int id, IPatientRepository repo)
@@ -26,20 +40,4 @@ public class Get : IEndpoint
 
         return TypedResults.Ok(patient.Adapt<GetResponse>());
     }
-}
-
-public class GetResponse
-{
-    public int Id { get; set; }
-    public string LastName { get; set; } = string.Empty;
-    public string FirstName { get; set; } = string.Empty;
-    public string Patronymic {  get; set; } = string.Empty;
-    public DateOnly Birthday { get; set; }
-    public Gender Gender { get; set; }
-    public string IDNP { get; set; } = string.Empty;
-    public string Job { get; set; } = string.Empty;
-    public string Phone { get; set; } = string.Empty;
-    public string StreetAddress { get; set; } = string.Empty;
-    public string Country { get; set; } = string.Empty;
-    public BloodType BloodType { get; set; }
 }

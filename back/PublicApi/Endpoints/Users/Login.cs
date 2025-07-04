@@ -1,52 +1,20 @@
 ﻿using AppCore.Interfaces.Repository;
+using Domain.Enums;
 using FluentValidation;
+using Infrastructure.Extensions;
 using Infrastructure.Identity;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using PublicApi.Endpoints.Addons;
 
 namespace PublicApi.Endpoints.Users;
 
-public class Login : IEndpoint
+public class Login : BaseEndpoint
 {
-    public void Configure(IEndpointRouteBuilder app)
-    {
-        var tag = EndpointTags.Users.ToString();
-        app.MapPost(tag.ToLower() + "/login", HandleAsync)
-            .DisableAntiforgery()
-            .AllowAnonymous()
-            .Produces(StatusCodes.Status200OK)
-            .Produces(StatusCodes.Status401Unauthorized)
-            .Produces(StatusCodes.Status400BadRequest)
-            .WithTags(tag);
-    }
+    public record LoginRequest(string Email, string Password);
+    public record LoginResponse(string Token);
 
-    public async Task<IResult> HandleAsync([FromForm] LoginRequest loginRequest, TokenProvider provider, IUserRepository repo)
-    {
-        var result = new LoginRequestValidator().Validate(loginRequest);
-        if (!result.IsValid)
-        {
-            return TypedResults.Json(result.ToDictionary(), new System.Text.Json.JsonSerializerOptions(), null, StatusCodes.Status400BadRequest);
-        }
-
-        if (await repo.LoginAsync(loginRequest.Email, loginRequest.Password))
-        {
-            var token = provider.Create(loginRequest.Email);
-            return TypedResults.Ok(new LoginResponse() { Token = token });
-        }
-        else
-        {
-            return TypedResults.Extensions.Error("Provided credentials are incorect", StatusCodes.Status401Unauthorized);
-        }
-    }
-
-    public class LoginRequest
-    {
-        public string Email { get; set; } = string.Empty;
-        public string Password { get; set; } = string.Empty;
-    }
-
-    public class LoginRequestValidator : AbstractValidator<LoginRequest>
+    private class LoginRequestValidator : AbstractValidator<LoginRequest>
     {
         public LoginRequestValidator()
         {
@@ -58,8 +26,43 @@ public class Login : IEndpoint
         }
     }
 
-    public class LoginResponse
+    public override void Configure(IEndpointRouteBuilder app)
     {
-        public string Token { get; set; } = string.Empty;
+        app.MapPost(Tag.ToLower() + "/login", HandleAsync)
+            .DisableAntiforgery()
+            .AllowAnonymous()
+            .Produces(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status400BadRequest)
+            .WithTags(Tag);
+    }
+
+    private record UserDto(string Password, UserRole UserRole, int? TemplateId);
+
+    public async Task<IResult> HandleAsync([FromForm] LoginRequest loginRequest, HashProvider hashProvider, TokenProvider tokenProvider, IUserRepository repo)
+    {
+        var result = new LoginRequestValidator().Validate(loginRequest);
+        if (!result.IsValid)
+        {
+            return TypedResults.Json(result.ToDictionary(), (System.Text.Json.JsonSerializerOptions?)null, null, StatusCodes.Status400BadRequest);
+        }
+
+        // TODO: think about a way to remove useless joins
+        var user = await repo.FindByEmail(loginRequest.Email).SingleOrDefaultAsync(e => new UserDto(e.Password, e.UserRole, (e.Medic == null) ? null : e.Medic.TemplateId));
+        if (user == null)
+        {
+            return TypedResults.Extensions.Error("The user was not found", StatusCodes.Status404NotFound);
+        }
+
+        // TODO: i would incorporate this in login??
+        if (!hashProvider.Verify(loginRequest.Password, user.Password))
+        {
+            return TypedResults.Extensions.Error("Provided credentials are incorect", StatusCodes.Status401Unauthorized);
+        }
+
+        var token = tokenProvider.Create(loginRequest.Email, user.UserRole, user.TemplateId);
+
+        return TypedResults.Ok(new LoginResponse(token));
     }
 }
+

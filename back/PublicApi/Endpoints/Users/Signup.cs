@@ -1,61 +1,15 @@
 ﻿using AppCore.Interfaces.Repository;
 using FluentValidation;
 using Infrastructure.Identity;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using PublicApi.Endpoints.Addons;
 
 namespace PublicApi.Endpoints.Users;
 
-public class Signup : IEndpoint
+public class Signup : BaseEndpoint
 {
-    public void Configure(IEndpointRouteBuilder app)
-    {
-        var tag = EndpointTags.Users.ToString();
-        app.MapPost(tag.ToLower() + "/signup", HandleAsync)
-            .DisableAntiforgery()
-            .AllowAnonymous()
-            .Produces(StatusCodes.Status200OK)
-            .Produces(StatusCodes.Status400BadRequest)
-            .WithTags(tag);
-    }
-
-    public async Task<Results<
-        JsonHttpResult<List<FluentValidation.Results.ValidationFailure>>,
-        BadRequest,
-        Ok<SignupResponse>>>
-        HandleAsync([FromForm] SignupRequest signupRequest, TokenProvider provider, IUserRepository repo)
-    {
-        var result = new SignupRequestValidator().Validate(signupRequest);
-        if (!result.IsValid)
-        {
-            return TypedResults.Json(result.Errors, new System.Text.Json.JsonSerializerOptions(), null, StatusCodes.Status400BadRequest);
-        }
-
-        var isSuccesful = await repo.SignupAsync(signupRequest.Email, signupRequest.Password);
-        if (!isSuccesful)
-            return TypedResults.BadRequest();
-
-        var token = provider.Create(signupRequest.Email);
-        return TypedResults.Ok(new SignupResponse() { Token = token });
-    }
-
-    public class SignupRequest
-    {
-        public string Email { get; set; } = string.Empty;
-        public string Password { get; set; } = string.Empty;
-        //public string Username { get; set; } = string.Empty;
-
-        //public static explicit operator User(SignupRequest request)
-        //{
-        //    return new User
-        //    {
-        //        Email = request.Email,
-        //        Password = request.Password,
-
-        //    };
-        //}
-    }
+    public record SignupRequest(string Email, string Password);
+    public record SignupResponse(string Token);
 
     private class SignupRequestValidator : AbstractValidator<SignupRequest>
     {
@@ -70,8 +24,32 @@ public class Signup : IEndpoint
         }
     }
 
-    public class SignupResponse
+    public override void Configure(IEndpointRouteBuilder app)
     {
-        public string Token { get; set; } = string.Empty;
+        app.MapPost(Tag.ToLower() + "/signup", HandleAsync)
+            .DisableAntiforgery()
+            .AllowAnonymous()
+            .Produces(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status400BadRequest)
+            .WithTags(Tag);
+    }
+
+    public async Task<IResult> HandleAsync([FromForm] SignupRequest signupRequest, TokenProvider provider, IUserRepository repo)
+    {
+        var result = new SignupRequestValidator().Validate(signupRequest);
+        if (!result.IsValid)
+        {
+            return TypedResults.Json(result.ToDictionary(), (System.Text.Json.JsonSerializerOptions?)null, null, StatusCodes.Status400BadRequest);
+        }
+
+        if (await repo.SignupAsync(signupRequest.Email, signupRequest.Password))
+        {
+            var token = provider.Create(signupRequest.Email, Domain.Enums.UserRole.Patient);
+            return TypedResults.Ok(new SignupResponse(token));
+        }
+        else
+        {
+            return TypedResults.Extensions.Error("The provided email is already associated with an account", StatusCodes.Status400BadRequest);
+        }
     }
 }

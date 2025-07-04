@@ -3,11 +3,10 @@ using FluentValidation;
 using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using PublicApi.Endpoints.Addons;
-using System.Text.Json;
 
 namespace PublicApi.Endpoints.Patients;
 
-public sealed class Update : IEndpoint
+public class Update : BaseEndpoint
 {
     public record UpdateRequest(
         string FirstName,
@@ -40,13 +39,12 @@ public sealed class Update : IEndpoint
         }
     }
 
-    public void Configure(IEndpointRouteBuilder app)
+    public override void Configure(IEndpointRouteBuilder app)
     {
-        var tag = EndpointTags.Patients.ToString();
-        app.MapPut(tag.ToLower() + "/update/{id}", HandleAsync)
+        app.MapPut(Tag.ToLower() + "/update/{id}", HandleAsync)
             .DisableAntiforgery()
             .RequireAuthorization()
-            .WithTags(tag);
+            .WithTags(Tag);
     }
 
     public async Task<IResult> HandleAsync([FromRoute] int id, [FromBody] UpdateRequest request, IPatientRepository repo)
@@ -54,15 +52,19 @@ public sealed class Update : IEndpoint
         var result = new UpdateRequestValidator().Validate(request);
         if (!result.IsValid)
         {
-            return TypedResults.Json(result.ToDictionary(), (JsonSerializerOptions?)null, null, StatusCodes.Status400BadRequest);
+            return TypedResults.Json(result.ToDictionary(), (System.Text.Json.JsonSerializerOptions?)null, null, StatusCodes.Status400BadRequest);
         }
 
         var patient = await repo.GetByIdAsync(id);
         if (patient == null)
-            return TypedResults.Extensions.Error("The patient with this id has not been found", StatusCodes.Status404NotFound);
+            return TypedResults.NotFound();
 
-        await repo.UpdateAsync(request.Adapt(patient));
+        var response = await repo.UpdateAsync(request.Adapt(patient));
+        if (!response.IsSuccessful)
+        {
+            return TypedResults.Extensions.Error(response.Error, StatusCodes.Status400BadRequest);
+        }
 
-        return TypedResults.Ok();
+        return TypedResults.Ok(request);
     }
 }

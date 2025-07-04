@@ -1,34 +1,46 @@
-import PatientForm from "./PatientForm";
-import Link from "next/link";
-import { patientUpdate } from "../actions";
-import { Patient } from "../types";
-import { fetchGet } from "@/lib/fetchWrap";
+import { patientGet } from "../actions";
 import ErrorMessage from "@/components/ErrorMessage";
+import PatientTabs from "./PatientTabs";
+import { decodeToken } from "@/lib/dal";
+import { VisitTemplate } from "@/lib/definitions";
+import { fetchGet } from "@/lib/fetchWrap";
+import { PatientTabsProvider } from "./context";
 
-export default async function Page({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const response = await fetchGet<Patient>(
-    `/patients/get/${(await params).id}`,
-    { withAuth: true }
+async function visitTemplateGet() {
+  const payload = await decodeToken();
+  if (!payload) return;
+
+  const response = await fetchGet<VisitTemplate>(
+    `/templates/get/${payload.templateId}`,
+    {
+      withAuth: true,
+    }
   );
 
-  if (!response.data) return <ErrorMessage />;
+  if (response.data) {
+    return response.data;
+  } else {
+    console.error("Error fetching visit template: ", response.message);
+  }
+}
 
+export default async function PatientOptionsPage({
+  params,
+}: {
+  params: Promise<{ id: number }>;
+}) {
+  const patientId = (await params).id;
+  const patient = await patientGet(patientId);
+  if (!patient) return <ErrorMessage />;
+
+  const template = await visitTemplateGet();
+  if (!template) return <ErrorMessage />;
   return (
-    <>
-      <PatientForm toExecute={patientUpdate} patient={response.data} />
-      <Link
-        className="btn btn-primary"
-        href={{
-          pathname: "/visits/create",
-          query: { patientId: response.data.id },
-        }}
-      >
-        Add visit
-      </Link>
-    </>
+    <div className="bg-base-100 rounded-field">
+      <h1 className="text-2xl font-bold mb-2 pl-6 pt-6">{`${patient.firstName} ${patient.lastName}`}</h1>
+      <PatientTabsProvider value={{ patient, template }}>
+        <PatientTabs />
+      </PatientTabsProvider>
+    </div>
   );
 }

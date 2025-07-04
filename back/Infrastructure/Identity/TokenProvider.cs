@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Domain.Enums;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
@@ -8,17 +9,27 @@ namespace Infrastructure.Identity;
 
 public sealed class TokenProvider(IConfiguration configuration)
 {
-    // TODO: pass an object rather than proprietes
-    public string Create(string email)
+    // TODO: pass an object rather than properties when more than 1 prop
+    public string Create(string email, UserRole role, int? TemplateId = null)
     {
-        var settings = configuration.GetSection("JwtSettings").Get<JwtSettings>()!;
+        var settings = configuration.GetSection(nameof(JwtSettings)).Get<JwtSettings>()!;
+
+        var claims = new ClaimsIdentity(
+        [
+            new Claim(JwtRegisteredClaimNames.Email, email),
+            new Claim(ClaimTypes.Role, role.ToString()),
+            //new Claim("templateId", TemplateId?.ToString() ?? "null")
+        ]);
+
+        // TODO: maybe add it every time if it will simplify the flow, prosteala aici agugugaga
+        if (TemplateId != null)
+        {
+            claims.AddClaim(new Claim("templateId", TemplateId.ToString() ?? "null"));
+        }
 
         var tokenDescriptor = new SecurityTokenDescriptor
         {
-            Subject = new ClaimsIdentity(
-            [
-                new Claim(JwtRegisteredClaimNames.Email, email)
-            ]),
+            Subject = claims,
             // TIMESTAMP IN SECONDS!!!
             Expires = DateTime.UtcNow.AddMinutes(settings.ExpiryMinutes),
 

@@ -2,15 +2,18 @@
 import { useState, useActionState, useEffect } from "react";
 import { FaEyeSlash, FaEye } from "react-icons/fa6";
 import { IoMail, IoKey } from "react-icons/io5";
-import Card from "../_components/Card";
-import { signup } from "../actions";
 import toast from "react-hot-toast";
 import FormLabel from "@/components/FormLabel";
+import { signup } from "../actions";
+import Card from "../_components/Card";
 
 export default function Signup() {
   const [hidePassword, setHidePassword] = useState(true);
   // const [hideConfirmPassword, setHideConfirmPassword] = useState(true);
-  const [state, action] = useActionState(signup, undefined);
+  const [state, action] = useActionState(signup, {
+    inputs: null,
+    message: "",
+  });
   const fieldErrors = state?.errors?.fieldErrors || {};
 
   useEffect(() => {

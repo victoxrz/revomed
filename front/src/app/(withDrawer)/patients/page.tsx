@@ -9,14 +9,14 @@ export default async function Page() {
   if (patients.length === 0) return <ErrorMessage />;
 
   return (
-    <table className="table w-full">
+    <table className="table w-full bg-base-100 rounded-field">
       <thead>
         <tr>
-          <th>Nume</th>
-          <th>Prenume</th>
-          <th>Data nasterii</th>
-          <th>Gen</th>
-          <th>Telefon</th>
+          <th>Last name</th>
+          <th>First name</th>
+          <th>Birthday</th>
+          <th>Gender</th>
+          <th>Phone</th>
           <th></th>
         </tr>
       </thead>
@@ -25,12 +25,12 @@ export default async function Page() {
           <tr key={p.id}>
             <td>{p.lastName}</td>
             <td>{p.firstName}</td>
-            <td>{p.birthday.toString()}</td>
+            <td>{new Date(p.birthday).toLocaleDateString("ro-md")}</td>
             <td>{p.gender}</td>
             <td>{p.phone}</td>
             <td>
               <Link href={`patients/${p.id}`} className="btn btn-primary mr-2">
-                Edit
+                More
               </Link>
               <ConfirmModal
                 toExecute={patientRemove}

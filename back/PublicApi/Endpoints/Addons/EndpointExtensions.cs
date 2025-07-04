@@ -7,11 +7,11 @@ public static class EndpointExtensions
     public static IServiceCollection AddEndpoints(this IServiceCollection services, Assembly assembly)
     {
         var endpointTypes = assembly.DefinedTypes
-            .Where(type => typeof(IEndpoint).IsAssignableFrom(type) && !type.IsInterface && !type.IsAbstract);
+            .Where(type => typeof(BaseEndpoint).IsAssignableFrom(type) && !type.IsInterface && !type.IsAbstract);
 
         foreach (var type in endpointTypes)
         {
-            services.AddTransient(typeof(IEndpoint), type);
+            services.AddTransient(typeof(BaseEndpoint), type);
         }
 
         return services;
@@ -19,7 +19,7 @@ public static class EndpointExtensions
 
     public static IApplicationBuilder MapEndpoints(this WebApplication app)
     {
-        var endpoints = app.Services.GetRequiredService<IEnumerable<IEndpoint>>();
+        var endpoints = app.Services.GetRequiredService<IEnumerable<BaseEndpoint>>();
 
         foreach (var endpoint in endpoints)
         {

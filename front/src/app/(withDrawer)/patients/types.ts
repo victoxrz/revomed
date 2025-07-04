@@ -12,9 +12,13 @@ export interface PatientModel {
 export const PatientSchema = z
   .object({
     id: z.coerce.number(),
-    lastName: z.string().nonempty("Last name must not be empty").max(30),
-    firstName: z.string().nonempty("First name must not be empty").max(30),
-    patronymic: z.string().max(30),
+    lastName: z.string().trim().nonempty("Last name must not be empty").max(30),
+    firstName: z
+      .string()
+      .trim()
+      .nonempty("First name must not be empty")
+      .max(30),
+    patronymic: z.string().trim().max(30),
     birthday: z.iso.date("Birthday must not be empty"),
     gender: z.enum(["Male", "Female", "Other"], {
       error: "Gender is required",
@@ -24,15 +28,22 @@ export const PatientSchema = z
     }),
     idnp: z
       .string()
+      .trim()
       .nonempty("IDNP must not be empty")
       .length(13, "IDNP must be 13 characters long"),
-    job: z.string().nonempty("Job must not be empty").max(30),
+    job: z.string().trim().nonempty("Job must not be empty").max(30),
     streetAddress: z
       .string()
+      .trim()
       .nonempty("Street address must not be empty")
       .max(30),
-    country: z.string().nonempty("Country must not be empty").max(30),
-    phone: z.string().nonempty("Phone must not be empty").max(15),
+    country: z.string().trim().nonempty("Country must not be empty").max(30),
+    phone: z
+      .string()
+      .trim()
+      .regex(/^[\-\+\d]+$/, "Invalid phone number")
+      .nonempty("Phone must not be empty")
+      .max(15),
   })
   .refine((data) => new Date(data.birthday).getFullYear() >= 1900, {
     message: "Birthday must be in or after 1900",
@@ -40,3 +51,10 @@ export const PatientSchema = z
   });
 export type Patient = z.infer<typeof PatientSchema>;
 export type patientErrors = z.ZodFlattenedError<Patient>;
+
+export type VisitItem = {
+  id: number;
+  createdAt: string;
+  titles: string[];
+  fields: string[];
+};

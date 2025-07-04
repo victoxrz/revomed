@@ -9,9 +9,9 @@ export default function FormLabel({
   error?: string[];
   className?: string;
 }) {
-  if (!className) className = "";
+  // if (!className) className = "";
   return (
-    <label className={`${className}`}>
+    <label className={className}>
       <span className="label text-sm mb-1">{label}</span>
       {children}
       {error && (

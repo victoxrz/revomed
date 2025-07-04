@@ -1,22 +1,24 @@
 "use server";
 import { cookies } from "next/headers";
+import { tryCatch } from "./try-catch";
 
 type FetchResponse<T> =
-  | { data: T | void; message: undefined }
-  | { data: undefined; message: string };
+  | { data: T | null; message: null }
+  | { data: null; message: string };
+// | { data: null; message: null };
 
 type FetchOptions = RequestInit & {
   withAuth?: boolean;
 };
 
-export async function fetchGet<T = undefined>(
+export async function fetchGet<T = null>(
   endpoint: string,
   options?: FetchOptions
 ): Promise<FetchResponse<T>> {
   return fetchWrapped<T>(endpoint, { ...options, method: "GET" });
 }
 
-export async function fetchPost<T = undefined>(
+export async function fetchPost<T = null>(
   endpoint: string,
   body: any,
   options?: FetchOptions
@@ -35,7 +37,7 @@ export async function fetchPost<T = undefined>(
   });
 }
 
-export async function fetchPut<T = undefined>(
+export async function fetchPut<T = null>(
   endpoint: string,
   body: any,
   options?: FetchOptions
@@ -54,7 +56,7 @@ export async function fetchPut<T = undefined>(
   });
 }
 
-export async function fetchRemove<T = undefined>(
+export async function fetchRemove<T = null>(
   endpoint: string,
   // body: any,
   options?: FetchOptions
@@ -62,7 +64,7 @@ export async function fetchRemove<T = undefined>(
   return fetchWrapped(endpoint, { ...options, method: "DELETE" });
 }
 
-export async function fetchWrapped<T = undefined>(
+export async function fetchWrapped<T = null>(
   endpoint: string,
   options?: FetchOptions
 ): Promise<FetchResponse<T>> {
@@ -83,18 +85,21 @@ export async function fetchWrapped<T = undefined>(
     console.log("Fetch status:", response.status, response.statusText);
 
     if (!response.ok) {
-      return await response.json();
+      // TODO: rethink
+      const text = await response.text();
+      if (text) return JSON.parse(text);
+      return { data: null, message: null };
     }
 
-    if (response.status === 201 || response.status === 204)
-      return { data: undefined, message: undefined };
+    if (response.status === (201 | 204)) return { data: null, message: null };
 
-    const data = await response.json();
-    return { data: data, message: undefined };
+    const { data } = await tryCatch<T>(response.json());
+
+    return { data: data, message: null };
   } catch (error) {
     console.error("Fetch error:", error);
     return {
-      data: undefined,
+      data: null,
       message: "Oops. Something went wrong!",
     };
   }

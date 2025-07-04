@@ -10,19 +10,23 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.81.5",
+    "jose": "^6.0.11",
     "next": "^15.3.2",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-hot-toast": "^2.5.2",
     "react-icons": "^5.4.0",
+    "swr": "^2.3.4",
     "zod": "^3.25.56"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.0.9",
+    "@tailwindcss/typography": "^0.5.16",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "daisyui": "^5.0.0-beta.9",
+    "daisyui": "^5.0.43",
     "eslint": "^8.57.1",
     "eslint-config-next": "^15.3.2",
     "postcss": "^8",
