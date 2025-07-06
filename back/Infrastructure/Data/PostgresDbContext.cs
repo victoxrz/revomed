@@ -1,5 +1,6 @@
 ﻿using Domain.Entities;
 using Domain.Entities.Users;
+using Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 
 
@@ -25,21 +26,25 @@ namespace Infrastructure.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Medic>(e =>
+            modelBuilder.Entity<VisitTemplate>(e =>
             {
-                e.HasOne(e => e.User)
-                    .WithOne(e => e.Medic)
-                    .HasForeignKey<Medic>(e => e.UserId)
-                    .OnDelete(DeleteBehavior.Cascade)
-                    .IsRequired();
-
-                e.HasOne(e => e.VisitTemplate)
-                    .WithMany()
-                    .HasForeignKey(e => e.TemplateId)
-                    .OnDelete(DeleteBehavior.NoAction);
+                e.HasIndex(e => e.MedicSpecialty).IsUnique();
+                e.ToTable(t => t.HasCheckConstraint("CK_VisitTemplate_Name_NotEmpty", "char_length(\"Name\") >= 1"));
             });
-
+            
             modelBuilder.Entity<Patient>().HasIndex(e => e.IDNP).IsUnique();
+            
+            modelBuilder.Entity<User>()
+                .UseTphMappingStrategy()
+                .HasDiscriminator(e => e.UserRole)
+                .HasValue<User>(UserRole.Patient)
+                .HasValue<Medic>(UserRole.Medic);
+
+            modelBuilder.Entity<Medic>()
+                .HasOne(e => e.VisitTemplate)
+                .WithMany()
+                .HasForeignKey(e => e.TemplateId)
+                .OnDelete(DeleteBehavior.NoAction);
 
             modelBuilder.Entity<Visit>(e =>
             {
@@ -54,12 +59,6 @@ namespace Infrastructure.Data
                     .HasForeignKey(e => e.TemplateId)
                     .OnDelete(DeleteBehavior.Restrict)
                     .IsRequired();
-            });
-
-            modelBuilder.Entity<VisitTemplate>(e =>
-            {
-                e.HasIndex(e => e.MedicSpecialty).IsUnique();
-                e.ToTable(t => t.HasCheckConstraint("CK_VisitTemplate_Name_NotEmpty", "char_length(\"Name\") >= 1"));
             });
         }
     }

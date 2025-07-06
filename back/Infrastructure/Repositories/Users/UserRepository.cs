@@ -16,7 +16,21 @@ namespace Infrastructure.Repositories.Users
             _hashProvider = hashProvider;
         }
 
-        public IQueryable<User> FindByEmail(string email) => _context.Users.Where(e => e.Email == email);
+
+        public IQueryable<User> FindByEmail(string email)
+        {
+            return _context.Users.Where(e => e.Email == email).AsNoTracking();
+        }
+
+        //public async Task<MightFail<User>> LoginAsync(string email, string password)
+        //{
+        //    var user = await FindByEmail(email).AsNoTracking().SingleOrDefaultAsync();
+        //    if (user == null) return new(error: "The user was not found");
+
+        //    if (!_hashProvider.Verify(password, user.Password)) return new(error: "Provided credentials are incorect");
+            
+        //    return new(data: user);
+        //}
 
         public async Task<bool> SignupAsync(string email, string password)
         {
@@ -31,6 +45,23 @@ namespace Infrastructure.Repositories.Users
 
             await _context.SaveChangesAsync();
             return true;
+        }
+
+        // TODO: still under question, maybe ask on github
+        public async Task<User?> UpdateAsync(User original, User modified)
+        {
+            _context.Entry(original).State = EntityState.Detached;
+
+            if (modified is Medic medic)
+            {
+                var exists = _context.Templates.Any(e => e.Id == medic.TemplateId);
+                if (!exists) return null;
+            }
+
+            _context.Users.Update(modified);
+            await _context.SaveChangesAsync();
+            
+            return original;
         }
     }
 }

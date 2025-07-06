@@ -20,6 +20,4 @@ public class User
 
     [Column(TypeName = "smallint")]
     public UserRole UserRole { get; set; }
-
-    public Medic Medic { get; set; } = null!;
 }

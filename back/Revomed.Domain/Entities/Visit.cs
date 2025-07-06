@@ -16,5 +16,6 @@ public class Visit
     public string[] Fields { get; set; } = [];
 
     public DateTime CreatedAt { get; set; }
+    
     public VisitTemplate Template { get; set; } = null!;
 }

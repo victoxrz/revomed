@@ -14,6 +14,7 @@ public class GetByPatientId : BaseEndpoint
     {
         app.MapGet(Tag.ToLower() + "/get", HandleAsync)
             .RequireAuthorization()
+            .RequireRoles(Domain.Enums.UserRole.Medic)
             .WithTags(Tag);
 
         TypeAdapterConfig<Visit, GetResponse>.NewConfig().Map(d => d.Titles, s => s.Template.Titles).Compile();

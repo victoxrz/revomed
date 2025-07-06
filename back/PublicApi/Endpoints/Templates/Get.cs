@@ -7,12 +7,14 @@ namespace PublicApi.Endpoints.Templates;
 
 public class Get : BaseEndpoint
 {
-    public record GetResponse(int Id, string[] Titles);
+    // maybe titles arent needed
+    public record GetResponse(int Id, string MedicSpecialty, string[] Titles);
 
     public override void Configure(IEndpointRouteBuilder app)
     {
         app.MapGet(Tag.ToLower() + "/get/{id}", HandleAsync)
             .RequireAuthorization()
+            .RequireRoles(Domain.Enums.UserRole.Medic)
             .WithTags(Tag);
     }
 

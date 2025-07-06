@@ -2,15 +2,11 @@
 
 namespace Domain.Entities.Users;
 
-public class Medic
+public class Medic : User
 {
-    [Key]
-    public int UserId { get; set; }
-
     // This attributes don't work - ForeignKey
     //[ForeignKey(nameof(VisitTemplate))]
     public int TemplateId { get; set; }
 
-    public User User { get; set; } = null!;
     public VisitTemplate VisitTemplate { get; set; } = null!;
 }

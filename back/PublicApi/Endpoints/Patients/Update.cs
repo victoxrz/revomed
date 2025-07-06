@@ -8,7 +8,7 @@ namespace PublicApi.Endpoints.Patients;
 
 public class Update : BaseEndpoint
 {
-    public record UpdateRequest(
+    private record UpdateRequest(
         string FirstName,
         string LastName,
         DateOnly Birthday,
@@ -47,7 +47,7 @@ public class Update : BaseEndpoint
             .WithTags(Tag);
     }
 
-    public async Task<IResult> HandleAsync([FromRoute] int id, [FromBody] UpdateRequest request, IPatientRepository repo)
+    private async Task<IResult> HandleAsync([FromRoute] int id, [FromBody] UpdateRequest request, IPatientRepository repo)
     {
         var result = new UpdateRequestValidator().Validate(request);
         if (!result.IsValid)
@@ -62,7 +62,7 @@ public class Update : BaseEndpoint
         var response = await repo.UpdateAsync(request.Adapt(patient));
         if (!response.IsSuccessful)
         {
-            return TypedResults.Extensions.Error(response.Error, StatusCodes.Status400BadRequest);
+            return TypedResults.BadRequest(new ErrorResponse(response.Error));
         }
 
         return TypedResults.Ok(request);
