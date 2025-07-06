@@ -9,7 +9,7 @@ namespace PublicApi.Endpoints.Patients;
 
 public class Create : BaseEndpoint
 {
-    public record CreateRequest(
+    private record CreateRequest(
         string FirstName,
         string LastName,
         string Patronymic,
@@ -50,7 +50,7 @@ public class Create : BaseEndpoint
 
     // JsonStringEnumConverter only works with FromBody
     // https://github.com/dotnet/aspnetcore/issues/49398
-    public async Task<IResult> HandleAsync([FromBody] CreateRequest request, IPatientRepository repo)
+    private async Task<IResult> HandleAsync([FromBody] CreateRequest request, IPatientRepository repo)
     {
         var result = new CreateRequestValidator().Validate(request);
         if (!result.IsValid)
@@ -62,7 +62,7 @@ public class Create : BaseEndpoint
 
         if (!response.IsSuccessful)
         {
-            return TypedResults.Extensions.Error(response.Error, StatusCodes.Status400BadRequest);
+            return TypedResults.BadRequest(new ErrorResponse(response.Error));
         }
 
         return TypedResults.Created();

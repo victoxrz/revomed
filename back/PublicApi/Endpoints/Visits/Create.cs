@@ -1,7 +1,7 @@
 ﻿using AppCore.Interfaces.Repository;
-using Domain.Enums;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.JsonWebTokens;
 using PublicApi.Endpoints.Addons;
 using System.Security.Claims;
@@ -27,7 +27,8 @@ public class Create : BaseEndpoint
     {
         app.MapPost(Tag.ToLower() + "/create", HandleAsync)
             .DisableAntiforgery()
-            .RequireRoles(UserRole.Medic)
+            .RequireAuthorization()
+            .RequireRoles(Domain.Enums.UserRole.Medic)
             .WithTags(Tag);
     }
 
@@ -41,22 +42,22 @@ public class Create : BaseEndpoint
 
         var email = context.User.FindFirstValue(JwtRegisteredClaimNames.Email);
         if (email == null)
-            return TypedResults.Extensions.Error("Try to log in again", StatusCodes.Status400BadRequest);
+            return TypedResults.BadRequest(new ErrorResponse("Try to log in again"));
 
-        var medic = await medicRepo.FindByEmailAsync(email);
+        var medic = await medicRepo.FindByEmail(email).SingleOrDefaultAsync();
         if (medic == null)
-            return TypedResults.Extensions.Error("Try to log in again", StatusCodes.Status400BadRequest);
+            return TypedResults.BadRequest(new ErrorResponse("Try to log in again"));
 
         var response = await visitRepo.AddAsync(new()
         {
             PatientId = request.PatientId,
-            MedicId = medic.UserId,
+            MedicId = medic.Id,
             TemplateId = medic.TemplateId,
             Fields = request.Fields,
         });
 
         if (!response.IsSuccessful)
-            return TypedResults.Extensions.Error(response.Error, StatusCodes.Status400BadRequest);
+            return TypedResults.BadRequest(new ErrorResponse(response.Error));
 
         return TypedResults.Created();
     }

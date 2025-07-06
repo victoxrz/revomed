@@ -6,7 +6,7 @@ namespace PublicApi.Endpoints.Templates;
 
 public class List : BaseEndpoint
 {
-    public record ListResponse(int Id, string[] Titles);
+    private record ListResponse(int Id, string[] Titles);
 
     public override void Configure(IEndpointRouteBuilder app)
     {
@@ -15,7 +15,7 @@ public class List : BaseEndpoint
            .WithTags(Tag);
     }
 
-    public IResult HandleAsync(IVisitTemplateRepository repo)
+    private IResult HandleAsync(IVisitTemplateRepository repo)
     {
         var templates = repo.GetAll();
         if (!templates.Any())

@@ -11,8 +11,13 @@ public class MedicRepository : BaseRepository<Medic>, IMedicRepository
 
     }
 
-    public Task<Medic?> FindByEmailAsync(string email)
+    /// <summary>
+    /// Assumes no tracking
+    /// </summary>
+    /// <param name="email"></param>
+    /// <returns></returns>
+    public IQueryable<Medic> FindByEmail(string email)
     {
-        return _context.Medics.Include(e => e.User).SingleOrDefaultAsync(e => e.User.Email == email);
+        return _context.Medics.Where(e => e.Email == email).AsNoTracking();
     }
 }

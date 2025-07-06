@@ -3,5 +3,5 @@
 namespace AppCore.Interfaces.Repository;
 public interface IMedicRepository
 {
-    Task<Medic?> FindByEmailAsync(string email);
+    IQueryable<Medic> FindByEmail(string email);
 }

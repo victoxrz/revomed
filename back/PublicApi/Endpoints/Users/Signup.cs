@@ -29,8 +29,6 @@ public class Signup : BaseEndpoint
         app.MapPost(Tag.ToLower() + "/signup", HandleAsync)
             .DisableAntiforgery()
             .AllowAnonymous()
-            .Produces(StatusCodes.Status200OK)
-            .Produces(StatusCodes.Status400BadRequest)
             .WithTags(Tag);
     }
 
@@ -49,7 +47,7 @@ public class Signup : BaseEndpoint
         }
         else
         {
-            return TypedResults.Extensions.Error("The provided email is already associated with an account", StatusCodes.Status400BadRequest);
+            return TypedResults.BadRequest(new ErrorResponse("The provided email is already associated with an account"));
         }
     }
 }
