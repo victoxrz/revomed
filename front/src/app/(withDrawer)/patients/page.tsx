@@ -3,8 +3,11 @@ import ConfirmModal from "../../../components/ConfirmModal";
 import { PiWarningBold } from "react-icons/pi";
 import { patientList, patientRemove } from "./actions";
 import ErrorMessage from "@/components/ErrorMessage";
+import RequireRoles from "@/components/RequireRoles";
 
 export default async function Page() {
+  await RequireRoles(["Medic"]);
+
   const patients = await patientList();
   if (patients.length === 0) return <ErrorMessage />;
 

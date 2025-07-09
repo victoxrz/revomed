@@ -43,7 +43,7 @@ export async function login(
       inputs: validatedFields.data,
     };
 
-  if (response.data)
+  if (response.data) {
     (await cookies()).set({
       name: process.env.AUTH_TOKEN_NAME!,
       value: response.data.token,
@@ -51,8 +51,13 @@ export async function login(
       secure: true,
       sameSite: "strict",
     });
+    redirect("/");
+  }
 
-  redirect("/");
+  return {
+    message: "The provided credentials did not match.",
+    inputs: validatedFields.data,
+  };
 }
 
 export async function signup(
@@ -81,13 +86,7 @@ export async function signup(
     }
   );
 
-  if (response.message)
-    return {
-      message: response.message,
-      inputs: validatedFields.data,
-    };
-
-  if (response.data)
+  if (response.data) {
     (await cookies()).set({
       name: process.env.AUTH_TOKEN_NAME!,
       value: response.data.token,
@@ -95,6 +94,11 @@ export async function signup(
       secure: true,
       sameSite: "strict",
     });
+    redirect("/");
+  }
 
-  redirect("/patients");
+  return {
+    message: "The provided credentials did not match.",
+    inputs: validatedFields.data,
+  };
 }

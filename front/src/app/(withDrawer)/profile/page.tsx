@@ -1,14 +1,15 @@
 import FormLabel from "@/components/FormLabel";
 import ProfileForm from "./ProfileForm";
-import { ProfileGet, VisitTemplateGet } from "./actions";
+import { ProfileGet } from "./actions";
 import ErrorMessage from "@/components/ErrorMessage";
+import { visitTemplateGet } from "../patients/_components/visits/actions";
 
 export default async function Profile() {
   const profile = await ProfileGet();
   if (!profile) return <ErrorMessage />;
 
-  var template;
-  if (profile.templateId) template = await VisitTemplateGet(profile.templateId);
+  let template;
+  if (profile.templateId) template = await visitTemplateGet();
 
   return (
     <div className="w-full bg-base-100 rounded-field">

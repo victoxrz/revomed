@@ -1,3 +1,11 @@
 {
-  "extends": ["next/core-web-vitals", "next/typescript"]
+  "extends": ["next/core-web-vitals", "next/typescript"],
+  "overrides": [
+    {
+      "files": ["./src/lib/fetchWrap.ts"], // replace with your file path
+      "rules": {
+        "@typescript-eslint/no-explicit-any": "off" // replace with the rule you want to disable
+      }
+    }
+  ]
 }

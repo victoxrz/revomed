@@ -51,10 +51,3 @@ export const PatientSchema = z
   });
 export type Patient = z.infer<typeof PatientSchema>;
 export type patientErrors = z.ZodFlattenedError<Patient>;
-
-export type VisitItem = {
-  id: number;
-  createdAt: string;
-  titles: string[];
-  fields: string[];
-};

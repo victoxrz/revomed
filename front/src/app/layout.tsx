@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import ToasterWrapper from "@/components/ToasterWrapper";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import QueryProvider from "@/components/QueryProvider";
 
 const geistSans = localFont({

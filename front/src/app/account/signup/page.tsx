@@ -7,7 +7,7 @@ import FormLabel from "@/components/FormLabel";
 import { signup } from "../actions";
 import Card from "../_components/Card";
 
-export default function Signup() {
+export default function SignupForm() {
   const [hidePassword, setHidePassword] = useState(true);
   // const [hideConfirmPassword, setHideConfirmPassword] = useState(true);
   const [state, action] = useActionState(signup, {

@@ -17,7 +17,7 @@ public sealed class TokenProvider(IConfiguration configuration)
         var claims = new ClaimsIdentity(
         [
             new Claim(JwtRegisteredClaimNames.Email, email),
-            new Claim(ClaimTypes.Role, role.ToString()),
+            new Claim("role", role.ToString()),
             //new Claim("templateId", TemplateId?.ToString() ?? "null")
         ]);
 

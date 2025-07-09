@@ -9,6 +9,6 @@ public static class RouteHandlerBuilderExtensions
         var roleNames = roles
             .Select(r => r.ToString());
 
-        return builder.RequireAuthorization(policy => policy.RequireRole(roleNames));
+        return builder.RequireAuthorization(policy => policy.RequireClaim("role", roleNames));
     }
 }

@@ -7,7 +7,7 @@ import FormLabel from "@/components/FormLabel";
 import { login } from "../actions";
 import Card from "../_components/Card";
 
-export default function Page() {
+export default function LoginForm() {
   const [hidePassword, setHidePassword] = useState(true);
   const [state, action] = useActionState(login, {
     inputs: null,

@@ -1,34 +1,17 @@
 import { patientGet } from "../actions";
 import ErrorMessage from "@/components/ErrorMessage";
-import PatientTabs from "./PatientTabs";
-import { decodeToken } from "@/lib/dal";
-import { VisitTemplate } from "@/lib/definitions";
-import { fetchGet } from "@/lib/fetchWrap";
-import { PatientTabsProvider } from "./context";
-
-async function visitTemplateGet() {
-  const payload = await decodeToken();
-  if (!payload) return;
-
-  const response = await fetchGet<VisitTemplate>(
-    `/templates/get/${payload.templateId}`,
-    {
-      withAuth: true,
-    }
-  );
-
-  if (response.data) {
-    return response.data;
-  } else {
-    console.error("Error fetching visit template: ", response.message);
-  }
-}
+import PatientTabs from "../_components/PatientTabs";
+import { PatientTabsProvider } from "../_components/PatientTabsProvider";
+import RequireRoles from "@/components/RequireRoles";
+import { visitTemplateGet } from "../_components/visits/actions";
 
 export default async function PatientOptionsPage({
   params,
 }: {
   params: Promise<{ id: number }>;
 }) {
+  await RequireRoles(["Medic"]);
+
   const patientId = (await params).id;
   const patient = await patientGet(patientId);
   if (!patient) return <ErrorMessage />;

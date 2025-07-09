@@ -11,3 +11,11 @@ export const VisitSchema = z.object({
 });
 export type Visit = z.infer<typeof VisitSchema>;
 export type visitErrors = z.ZodFlattenedError<Visit>;
+
+export const VisitTemplateSchema = z.object({
+  id: z.coerce.number(),
+  medicSpecialty: z.string().nonempty(),
+  titles: z.array(z.string().nonempty("Title must not be empty")),
+});
+export type VisitTemplate = z.infer<typeof VisitTemplateSchema>;
+export type VisitTemplateErrors = z.ZodFlattenedError<VisitTemplate>;
