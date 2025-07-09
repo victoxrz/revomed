@@ -1,9 +1,11 @@
 "use server";
 import { FormState } from "@/lib/definitions";
-import { fetchPost } from "@/lib/fetchWrap";
+import { fetchGet, fetchPost } from "@/lib/fetchWrap";
 import z from "zod/v4";
-import { Visit, visitErrors, VisitSchema } from "./types";
+import { Visit, visitErrors, VisitSchema, VisitTemplate } from "./types";
 import { redirect } from "next/navigation";
+import { decodeToken } from "@/lib/dal";
+import { VisitItem } from "./VisitList";
 
 export async function createVisit(
   _state: FormState<visitErrors, Visit>,
@@ -27,8 +29,6 @@ export async function createVisit(
     withAuth: true,
   });
 
-  console.log("Response:", response.message);
-
   if (response.message) {
     return {
       inputs: data,
@@ -38,4 +38,35 @@ export async function createVisit(
 
   // TODO: sometimes its better to show succesful message
   redirect(`/patients/${validatedFields.data.patientId}`);
+}
+
+export async function visitTemplateGet() {
+  const payload = await decodeToken();
+  if (!payload) return;
+
+  const response = await fetchGet<VisitTemplate>(
+    `/templates/get/${payload.templateId}`,
+    {
+      withAuth: true,
+    }
+  );
+
+  if (response.data) {
+    return response.data;
+  } else {
+    console.error("Error fetching: ", response.message);
+  }
+}
+
+export async function VisitGet(patientId: number) {
+  const response = await fetchGet<VisitItem[]>(
+    `/visits/get?patientId=${patientId}`,
+    {
+      withAuth: true,
+    }
+  );
+
+  if (response.message) console.error("Error fetching: ", response.message);
+
+  return response.data;
 }

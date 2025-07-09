@@ -1,7 +1,7 @@
 "use client";
 import { createContext, useContext } from "react";
 import { Patient } from "../types";
-import { VisitTemplate } from "@/lib/definitions";
+import { VisitTemplate } from "./visits/types";
 
 type PatientTabsValue =
   | {

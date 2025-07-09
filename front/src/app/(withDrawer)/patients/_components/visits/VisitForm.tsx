@@ -4,7 +4,7 @@ import { useActionState, useEffect } from "react";
 import toast from "react-hot-toast";
 import { FaSave } from "react-icons/fa";
 import { createVisit } from "./actions";
-import { usePatientTabsContext } from "../patients/[id]/context";
+import { usePatientTabsContext } from "../PatientTabsProvider";
 
 export default function CreateVisitForm({ className }: { className?: string }) {
   const ctx = usePatientTabsContext();

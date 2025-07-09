@@ -4,7 +4,7 @@ import { FormState } from "@/lib/definitions";
 import toast from "react-hot-toast";
 import FormLabel from "@/components/FormLabel";
 import { FaSave } from "react-icons/fa";
-import { patientErrors, Patient } from "./types";
+import { patientErrors, Patient } from "../types";
 
 export default function PatientForm({
   className,

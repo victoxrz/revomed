@@ -17,7 +17,6 @@ export async function patientCreate(
 
   const validatedFields = PatientSchema.safeParse(data);
 
-  console.log("succesful:", validatedFields.success);
   if (!validatedFields.success) {
     return {
       errors: z.flattenError(validatedFields.error),
@@ -101,8 +100,7 @@ export async function patientGet(patientId: number): Promise<Patient | null> {
     withAuth: true,
   });
 
-  if (response.message)
-    console.error("Error fetching visit template: ", response.message);
+  if (response.message) console.error("Error fetching: ", response.message);
 
   return response.data;
 }
