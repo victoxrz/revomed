@@ -38,7 +38,7 @@ public class Create : BaseEndpoint
     {
         app.MapPost(Tag.ToLower() + "/create", HandleAsync)
             .RequireAuthorization()
-            //.RequireRoles(Domain.Enums.UserRole.Medic)
+            .RequireRoles(Domain.Enums.UserRole.Medic)
             .WithValidation<CreateRequest>()
             .WithTags(Tag);
     }
