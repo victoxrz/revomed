@@ -9,5 +9,5 @@ export type FormState<TErrors, TInputs> =
       errors?: never;
       message: string;
       // maybe make it mandatory
-      isSuccesful?: true;
+      isSuccessful?: true;
     };
