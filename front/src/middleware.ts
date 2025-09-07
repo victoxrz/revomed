@@ -19,5 +19,4 @@ export const config = {
     "/profile/:path*",
     "/templates/:path*",
   ],
-  // matcher: [],
 };
