@@ -122,7 +122,7 @@ export default function TriageForm({
           </div>
         </FormLabel>
 
-        <FormLabel label="Height (cm)" error={fieldErrors.weight}>
+        <FormLabel label="Height (cm)" error={fieldErrors.height}>
           <div className="input flex mb-4 w-full">
             <input
               name="height"
