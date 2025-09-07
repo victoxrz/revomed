@@ -9,7 +9,6 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
-using static QuestPDF.Helpers.Colors;
 
 namespace Infrastructure.Repositories;
 public class VisitSuggestionRepository : BaseRepository<VisitSuggestion>, IVisitSuggestionRepository
