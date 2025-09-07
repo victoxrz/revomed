@@ -1,8 +1,6 @@
 "use server";
 import { cookies } from "next/headers";
 import { tryCatch } from "./try-catch";
-import { error } from "console";
-
 // TODO: rethink so that it will include also field errors by fluentValidation
 type FetchResponse<T> =
   | { data: T | null; message: null }
