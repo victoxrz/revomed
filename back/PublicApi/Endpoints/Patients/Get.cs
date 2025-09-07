@@ -1,5 +1,4 @@
 ﻿using AppCore.Interfaces.Repository;
-using Domain.Entities.Users;
 using Domain.Enums;
 using Mapster;
 using Microsoft.AspNetCore.Mvc;
@@ -16,25 +15,26 @@ public class Get : BaseEndpoint
         string Patronymic,
         DateOnly Birthday,
         Gender Gender,
-        string IDNP,
+        string Idnp,
         string Job,
         string Phone,
         string StreetAddress,
         string Country,
-        BloodType BloodType);
+        BloodType BloodType,
+        string InsurancePolicy,
+        bool? IsInsured);
 
     public override void Configure(IEndpointRouteBuilder app)
     {
         app.MapGet(Tag.ToLower() + "/get/{id}", HandleAsync)
             .RequireAuthorization()
+            .RequireRoles(UserRole.Medic, UserRole.Admin)
             .WithTags(Tag);
-
-        TypeAdapterConfig<Patient, GetResponse>.NewConfig().Map(d => d.IDNP, s => s.IDNP).Compile();
     }
 
-    public async Task<IResult> HandleAsync([FromRoute] int id, IPatientRepository repo)
+    public async Task<IResult> HandleAsync([FromRoute] int id, IPatientRepository repo, CancellationToken ct = default)
     {
-        var patient = await repo.GetByIdAsync(id);
+        var patient = await repo.GetByIdAsync(id, ct);
         if (patient == null)
             return TypedResults.BadRequest();
 

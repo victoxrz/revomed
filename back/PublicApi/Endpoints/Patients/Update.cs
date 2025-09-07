@@ -8,20 +8,21 @@ namespace PublicApi.Endpoints.Patients;
 
 public class Update : BaseEndpoint
 {
-    private record UpdateRequest(
+    public record UpdateRequest(
         string FirstName,
         string LastName,
         DateOnly Birthday,
         Domain.Enums.Gender Gender,
         string Patronymic,
         Domain.Enums.BloodType BloodType,
-        string IDNP,
+        string Idnp,
         string Job,
         string StreetAddress,
         string Country,
-        string Phone);
+        string Phone,
+        string InsurancePolicy);
 
-    private class UpdateRequestValidator : AbstractValidator<UpdateRequest>
+    public class UpdateRequestValidator : AbstractValidator<UpdateRequest>
     {
         public UpdateRequestValidator()
         {
@@ -31,30 +32,26 @@ public class Update : BaseEndpoint
             RuleFor(x => x.Birthday).NotEmpty().GreaterThan(new DateOnly(1900, 1, 1));
             RuleFor(x => x.Gender).IsInEnum();
             RuleFor(x => x.BloodType).IsInEnum();
-            RuleFor(x => x.IDNP).NotEmpty().Length(13);
+            RuleFor(x => x.Idnp).NotEmpty().Length(13);
             RuleFor(x => x.Job).NotEmpty().MaximumLength(30);
             RuleFor(x => x.StreetAddress).NotEmpty().MaximumLength(30);
             RuleFor(x => x.Country).NotEmpty().MaximumLength(30);
             RuleFor(x => x.Phone).NotEmpty().MaximumLength(15);
+            RuleFor(x => x.InsurancePolicy).NotEmpty().MaximumLength(15);
         }
     }
 
     public override void Configure(IEndpointRouteBuilder app)
     {
         app.MapPut(Tag.ToLower() + "/update/{id}", HandleAsync)
+            .WithValidation<UpdateRequest>()
             .DisableAntiforgery()
             .RequireAuthorization()
             .WithTags(Tag);
     }
 
-    private async Task<IResult> HandleAsync([FromRoute] int id, [FromBody] UpdateRequest request, IPatientRepository repo)
+    private async Task<IResult> HandleAsync([FromBody] UpdateRequest request, [FromRoute] int id, IPatientRepository repo)
     {
-        var result = new UpdateRequestValidator().Validate(request);
-        if (!result.IsValid)
-        {
-            return TypedResults.Json(result.ToDictionary(), (System.Text.Json.JsonSerializerOptions?)null, null, StatusCodes.Status400BadRequest);
-        }
-
         var patient = await repo.GetByIdAsync(id);
         if (patient == null)
             return TypedResults.NotFound();

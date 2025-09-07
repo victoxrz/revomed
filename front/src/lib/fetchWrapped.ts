@@ -1,7 +1,9 @@
 "use server";
 import { cookies } from "next/headers";
 import { tryCatch } from "./try-catch";
+import { error } from "console";
 
+// TODO: rethink so that it will include also field errors by fluentValidation
 type FetchResponse<T> =
   | { data: T | null; message: null }
   | { data: null; message: string };
@@ -11,14 +13,14 @@ type FetchOptions = RequestInit & {
   withAuth?: boolean;
 };
 
-export async function fetchGet<T = null>(
+export async function get<T = null>(
   endpoint: string,
   options?: FetchOptions
 ): Promise<FetchResponse<T>> {
   return fetchWrapped<T>(endpoint, { ...options, method: "GET" });
 }
 
-export async function fetchPost<T = null>(
+export async function post<T = null>(
   endpoint: string,
   body: any,
   options?: FetchOptions
@@ -37,7 +39,7 @@ export async function fetchPost<T = null>(
   });
 }
 
-export async function fetchPut<T = null>(
+export async function put<T = null>(
   endpoint: string,
   body: any,
   options?: FetchOptions
@@ -56,7 +58,7 @@ export async function fetchPut<T = null>(
   });
 }
 
-export async function fetchRemove<T = null>(
+export async function remove<T = null>(
   endpoint: string,
   // body: any,
   options?: FetchOptions
@@ -82,13 +84,16 @@ export async function fetchWrapped<T = null>(
       `${process.env.API_BASE_URL!}${endpoint}`,
       options
     );
-    console.log("Fetch status:", response.status, response.statusText);
 
     if (!response.ok) {
       // TODO: rethink
       const text = await response.text();
       if (text) return JSON.parse(text);
-      return { data: null, message: null };
+      return {
+        data: null,
+        message: "Oops. Something went wrong!",
+      };
+      // return { data: null, message: null };
     }
 
     if (response.status === (201 | 204)) return { data: null, message: null };

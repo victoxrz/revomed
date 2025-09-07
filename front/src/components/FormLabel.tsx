@@ -4,14 +4,14 @@ export default function FormLabel({
   children,
   className,
 }: {
-  label: string;
+  label?: string;
   children: React.ReactNode;
   error?: string[];
   className?: string;
 }) {
   return (
     <label className={className}>
-      <span className="label text-sm mb-1">{label}</span>
+      {label && <span className="label text-sm mb-1 gap-0">{label}</span>}
       {children}
       {error && (
         <div className="text-sm text-red-500 whitespace-pre-line">

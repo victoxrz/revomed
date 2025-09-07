@@ -1,5 +1,8 @@
 ﻿using AppCore.Interfaces.Repository;
+using Domain.Entities.Visits;
 using FluentValidation;
+using Infrastructure.Repositories;
+using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.JsonWebTokens;
@@ -10,16 +13,16 @@ namespace PublicApi.Endpoints.Visits;
 
 public class Create : BaseEndpoint
 {
-    public record CreateRequest(int PatientId, int TemplateId, string[] Fields);
+    public record CreateRequest(int PatientId, int TemplateId, SortedDictionary<string, string> Fields);
 
-    private class CreateRequestValidator : AbstractValidator<CreateRequest>
+    public class CreateRequestValidator : AbstractValidator<CreateRequest>
     {
         public CreateRequestValidator()
         {
             RuleFor(x => x.PatientId).GreaterThan(0);
-            RuleFor(x => x.TemplateId).GreaterThan(0);
             RuleFor(x => x.Fields).NotEmpty();
-            RuleForEach(x => x.Fields).NotEmpty();
+            RuleFor(x => x.Fields).Must(x => x.All(f => !string.IsNullOrEmpty(f.Value)))
+            .WithMessage("Fields must not contain empty strings.");
         }
     }
 
@@ -29,32 +32,26 @@ public class Create : BaseEndpoint
             .DisableAntiforgery()
             .RequireAuthorization()
             .RequireRoles(Domain.Enums.UserRole.Medic)
+            .WithValidation<CreateRequest>()
             .WithTags(Tag);
     }
 
-    public async Task<IResult> HandleAsync([FromBody] CreateRequest request, HttpContext context, IVisitRepository visitRepo, IMedicRepository medicRepo)
+    // TODO: chaos in here, refactor this method
+    // TODO: write integration test for this function, check multiple combinations for Fields key
+    public async Task<IResult> HandleAsync([FromBody] CreateRequest request, ClaimsPrincipal user, IVisitRepository visitRepo, IMedicRepository medicRepo)
     {
-        var result = new CreateRequestValidator().Validate(request);
-        if (!result.IsValid)
-        {
-            return TypedResults.Json(result.ToDictionary(), (System.Text.Json.JsonSerializerOptions?)null, null, StatusCodes.Status400BadRequest);
-        }
-
-        var email = context.User.FindFirstValue(JwtRegisteredClaimNames.Email);
-        if (email == null)
-            return TypedResults.BadRequest(new ErrorResponse("Try to log in again"));
+        var email = user.FindFirstValue(JwtRegisteredClaimNames.Email);
+        if (string.IsNullOrEmpty(email))
+            return TypedResults.Unauthorized();
 
         var medic = await medicRepo.FindByEmail(email).SingleOrDefaultAsync();
         if (medic == null)
-            return TypedResults.BadRequest(new ErrorResponse("Try to log in again"));
+            return TypedResults.Unauthorized();
 
-        var response = await visitRepo.AddAsync(new()
-        {
-            PatientId = request.PatientId,
-            MedicId = medic.Id,
-            TemplateId = medic.TemplateId,
-            Fields = request.Fields,
-        });
+        var entity = request.Adapt<Visit>();
+        entity.MedicId = medic.Id;
+
+        var response = await visitRepo.AddAsync(entity);
 
         if (!response.IsSuccessful)
             return TypedResults.BadRequest(new ErrorResponse(response.Error));

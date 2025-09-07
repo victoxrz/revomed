@@ -1,6 +1,4 @@
 ﻿using AppCore.Interfaces.Repository;
-using Domain.Entities.Users;
-using Domain.Enums;
 using FluentValidation;
 using Infrastructure.Extensions;
 using Infrastructure.Identity;
@@ -12,10 +10,10 @@ namespace PublicApi.Endpoints.Users;
 
 public class Login : BaseEndpoint
 {
-    private record LoginRequest(string Email, string Password);
-    private record LoginResponse(string Token);
+    public record LoginRequest(string Email, string Password);
+    public record LoginResponse(string Token);
 
-    private class LoginRequestValidator : AbstractValidator<LoginRequest>
+    public class LoginRequestValidator : AbstractValidator<LoginRequest>
     {
         public LoginRequestValidator()
         {
@@ -30,6 +28,7 @@ public class Login : BaseEndpoint
     public override void Configure(IEndpointRouteBuilder app)
     {
         app.MapPost(Tag.ToLower() + "/login", HandleAsync)
+            .WithValidation<LoginRequest>()
             .DisableAntiforgery()
             .AllowAnonymous()
             .WithTags(Tag);
@@ -37,12 +36,6 @@ public class Login : BaseEndpoint
 
     private async Task<IResult> HandleAsync([FromForm] LoginRequest loginRequest, HashProvider hashProvider, TokenProvider tokenProvider, IUserRepository repo)
     {
-        var result = new LoginRequestValidator().Validate(loginRequest);
-        if (!result.IsValid)
-        {
-            return TypedResults.Json(result.ToDictionary(), (System.Text.Json.JsonSerializerOptions?)null, null, StatusCodes.Status400BadRequest);
-        }
-
         // test for significant perf improvment, if not remove
         // no perf boost, when selecting only needed fields
         var user = await repo.FindByEmail(loginRequest.Email).SingleOrDefaultAsync();
@@ -56,7 +49,7 @@ public class Login : BaseEndpoint
             return TypedResults.Unauthorized();
         }
 
-        var token = tokenProvider.Create(loginRequest.Email, user.UserRole, (user as Medic)?.TemplateId);
+        var token = tokenProvider.Create(loginRequest.Email, user.UserRole);
 
         return TypedResults.Ok(new LoginResponse(token));
     }

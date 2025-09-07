@@ -10,7 +10,7 @@ namespace Infrastructure.Identity;
 public sealed class TokenProvider(IConfiguration configuration)
 {
     // TODO: pass an object rather than properties when more than 1 prop
-    public string Create(string email, UserRole role, int? TemplateId = null)
+    public string Create(string email, UserRole role)
     {
         var settings = configuration.GetSection(nameof(JwtSettings)).Get<JwtSettings>()!;
 
@@ -18,14 +18,7 @@ public sealed class TokenProvider(IConfiguration configuration)
         [
             new Claim(JwtRegisteredClaimNames.Email, email),
             new Claim("role", role.ToString()),
-            //new Claim("templateId", TemplateId?.ToString() ?? "null")
         ]);
-
-        // TODO: maybe add it every time if it will simplify the flow, prosteala aici agugugaga
-        if (TemplateId != null)
-        {
-            claims.AddClaim(new Claim("templateId", TemplateId.ToString() ?? "null"));
-        }
 
         var tokenDescriptor = new SecurityTokenDescriptor
         {

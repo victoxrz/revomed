@@ -3,14 +3,14 @@ import { useActionState, useEffect, useRef } from "react";
 import toast from "react-hot-toast";
 
 export default function ConfirmModal({
-  toExecute,
+  mutateAction,
   id,
   children,
   openButton,
   closeButton,
   submitButton,
 }: {
-  toExecute: (
+  mutateAction: (
     state: { message: string } | undefined,
     formData: FormData
   ) => Promise<{ message: string }>;
@@ -21,7 +21,7 @@ export default function ConfirmModal({
   submitButton: string;
 }) {
   const dialogRef = useRef<null | HTMLDialogElement>(null);
-  const [state, action] = useActionState(toExecute, undefined);
+  const [state, action] = useActionState(mutateAction, undefined);
 
   //TODO: dialog goes on top the toast, makes it less visible
   useEffect(() => {

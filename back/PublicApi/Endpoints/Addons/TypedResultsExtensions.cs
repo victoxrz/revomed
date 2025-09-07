@@ -1,7 +1,4 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
-using System.Text.Json;
-
-namespace PublicApi.Endpoints.Addons;
+﻿namespace PublicApi.Endpoints.Addons;
 
 public record ErrorResponse(string? Message);
 //public static class TypedResultsExtensions

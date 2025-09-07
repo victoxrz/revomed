@@ -7,7 +7,7 @@ namespace AppCore.Interfaces.Repository
         Task<MightFail<bool>> AddAsync(Patient pacient);
         // maybe not bool
         Task<bool> DeleteAsync(Patient patient);
-        Task<Patient?> GetByIdAsync(int id);
+        Task<Patient?> GetByIdAsync(int id, CancellationToken ct = default);
         // maybe not bool
         Task<MightFail<bool>> UpdateAsync(Patient patient);
         IQueryable<Patient> GetAll();

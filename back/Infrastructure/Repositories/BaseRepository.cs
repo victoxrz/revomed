@@ -20,9 +20,9 @@ namespace Infrastructure.Repositories
             return true;
         }
 
-        public async Task<TEntity?> GetByIdAsync(int id)
+        public async Task<TEntity?> GetByIdAsync(int id, CancellationToken ct = default)
         {
-            return await _context.Set<TEntity>().FindAsync(id);
+            return await _context.Set<TEntity>().FindAsync([id], ct);
         }
 
         public async Task<bool> UpdateAsync(TEntity entity)

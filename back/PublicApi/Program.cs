@@ -1,9 +1,11 @@
 using AppCore.Interfaces.Repository;
+using AppCore.Interfaces.Services;
+using FluentValidation;
 using Infrastructure.Data;
+using Infrastructure.Handlers;
 using Infrastructure.Identity;
 using Infrastructure.Repositories;
 using Infrastructure.Repositories.Users;
-using Mapster;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.OpenApi;
@@ -12,6 +14,7 @@ using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using Microsoft.OpenApi.Models;
+using Npgsql;
 using PublicApi.Endpoints.Addons;
 using Scalar.AspNetCore;
 using System.Reflection;
@@ -23,8 +26,11 @@ namespace PublicApi
     public sealed class Program
     {
         // TODO: consider removing Mapster in favor for implementing manual mapping or another lightweight
+        // TODO: remove default values in DB
         public static void Main(string[] args)
         {
+            QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
+
             var builder = WebApplication.CreateBuilder(args);
 
             builder.Services.AddOpenApi(options =>
@@ -45,6 +51,7 @@ namespace PublicApi
             });
 
             builder.Services.AddEndpoints(Assembly.GetExecutingAssembly());
+            builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly(), ServiceLifetime.Transient);
 
             builder.Services.AddCors(opt =>
             {
@@ -60,6 +67,13 @@ namespace PublicApi
 
             builder.Services.AddSingleton<TokenProvider>();
             builder.Services.AddSingleton<HashProvider>();
+
+            builder.Services.AddHttpClient<IInsuranceProvider, CnamInsuranceProvider>(o =>
+            {
+                o.BaseAddress = new Uri("https://aoam.cnam.gov.md:10202");
+                o.Timeout = TimeSpan.FromSeconds(10);
+                o.DefaultRequestHeaders.Add("Origin", "https://aoam.cnam.gov.md:10201");
+            });
 
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(o =>
@@ -77,16 +91,21 @@ namespace PublicApi
                 });
             builder.Services.AddAuthorization();
 
+            builder.Services.AddScoped<IProcessVisitService, ProcessVisitService>();
             builder.Services.AddScoped<IPatientRepository, PatientRepository>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IVisitRepository, VisitRepository>();
             builder.Services.AddScoped<IVisitTemplateRepository, VisitTemplateRepository>();
             builder.Services.AddScoped<IMedicRepository, MedicRepository>();
+            builder.Services.AddScoped<ITriageRepository, TriageRepository>();
+            builder.Services.AddScoped<IVisitSuggestionRepository, VisitSuggestionRepository>();
 
-            //builder.Services.AddDbContext<PostgresDbContext>(options =>
-            //    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+            var dataSource = new NpgsqlDataSourceBuilder(builder.Configuration.GetConnectionString("DefaultConnection"))
+                .EnableDynamicJson()
+                .Build();
+
             builder.Services.AddDbContext<PostgresDbContext>(options =>
-                options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+                options.UseNpgsql(dataSource));
 
             builder.Services.ConfigureHttpJsonOptions(o =>
             {

@@ -8,4 +8,6 @@ export type FormState<TErrors, TInputs> =
       inputs: TInputs | null;
       errors?: never;
       message: string;
+      // maybe make it mandatory
+      isSuccesful?: true;
     };

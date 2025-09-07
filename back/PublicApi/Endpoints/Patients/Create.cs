@@ -9,20 +9,21 @@ namespace PublicApi.Endpoints.Patients;
 
 public class Create : BaseEndpoint
 {
-    private record CreateRequest(
+    public record CreateRequest(
         string FirstName,
         string LastName,
         string Patronymic,
         DateOnly Birthday,
         Domain.Enums.Gender Gender,
         Domain.Enums.BloodType BloodType,
-        string IDNP,
+        string Idnp,
         string Job,
         string StreetAddress,
         string Country,
-        string Phone);
+        string Phone,
+        string InsurancePolicy);
 
-    private class CreateRequestValidator : AbstractValidator<CreateRequest>
+    public class CreateRequestValidator : AbstractValidator<CreateRequest>
     {
         public CreateRequestValidator()
         {
@@ -32,17 +33,19 @@ public class Create : BaseEndpoint
             RuleFor(x => x.Birthday).NotEmpty().GreaterThan(new DateOnly(1900, 1, 1));
             RuleFor(x => x.Gender).IsInEnum();
             RuleFor(x => x.BloodType).IsInEnum();
-            RuleFor(x => x.IDNP).NotEmpty().Length(13);
+            RuleFor(x => x.Idnp).NotEmpty().Length(13);
             RuleFor(x => x.Job).NotEmpty().MaximumLength(30);
             RuleFor(x => x.StreetAddress).NotEmpty().MaximumLength(30);
             RuleFor(x => x.Country).NotEmpty().MaximumLength(30);
             RuleFor(x => x.Phone).NotEmpty().MaximumLength(15);
+            RuleFor(x => x.InsurancePolicy).MaximumLength(15);
         }
     }
 
     public override void Configure(IEndpointRouteBuilder app)
     {
         app.MapPost(Tag.ToLower() + "/create", HandleAsync)
+            .WithValidation<CreateRequest>()
             .DisableAntiforgery()
             .RequireAuthorization()
             .WithTags(Tag);
@@ -52,12 +55,6 @@ public class Create : BaseEndpoint
     // https://github.com/dotnet/aspnetcore/issues/49398
     private async Task<IResult> HandleAsync([FromBody] CreateRequest request, IPatientRepository repo)
     {
-        var result = new CreateRequestValidator().Validate(request);
-        if (!result.IsValid)
-        {
-            return TypedResults.Json(result.ToDictionary(), (System.Text.Json.JsonSerializerOptions?)null, null, StatusCodes.Status400BadRequest);
-        }
-
         var response = await repo.AddAsync(request.Adapt<Patient>());
 
         if (!response.IsSuccessful)

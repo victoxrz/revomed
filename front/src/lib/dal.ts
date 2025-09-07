@@ -25,7 +25,7 @@ export async function validateSession(): Promise<{ isLoggedIn: boolean }> {
       new TextEncoder().encode(process.env.SECRET!)
     );
   } catch (e) {
-    console.error("session expired: ", e);
+    // console.error("session expired: ", e);
     return {
       isLoggedIn: false,
     };

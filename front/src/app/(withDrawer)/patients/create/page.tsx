@@ -1,6 +1,6 @@
 import RequireRoles from "@/components/RequireRoles";
 import PatientForm from "../_components/PatientForm";
-import { patientCreate } from "../actions";
+import { patient } from "@/lib/actions";
 
 export default async function CreatePatientPage() {
   await RequireRoles(["Medic"]);
@@ -9,7 +9,11 @@ export default async function CreatePatientPage() {
       <h1 className="text-2xl font-bold mb-2 pl-6 pt-6 text-center">
         Add a new patient
       </h1>
-      <PatientForm toExecute={patientCreate} patient={null} />
+      <PatientForm
+        className="w-full mx-auto max-w-2xl p-6"
+        mutateAction={patient.create}
+        patient={null}
+      />
     </div>
   );
 }

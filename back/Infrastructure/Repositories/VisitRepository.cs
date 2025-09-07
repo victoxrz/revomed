@@ -1,6 +1,7 @@
 ﻿using AppCore.Interfaces;
 using AppCore.Interfaces.Repository;
-using Domain.Entities;
+using AppCore.Interfaces.Services;
+using Domain.Entities.Visits;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -9,28 +10,55 @@ namespace Infrastructure.Repositories;
 
 public class VisitRepository : BaseRepository<Visit>, IVisitRepository
 {
-    public VisitRepository(PostgresDbContext context, ILogger<BaseRepository<Visit>> logger /* TODO: idk if this template param */) : base(context)
+    private readonly IProcessVisitService _svc;
+
+    public VisitRepository(PostgresDbContext context, IProcessVisitService svc, ILogger<BaseRepository<Visit>> logger /* TODO: idk if this template param */) : base(context)
     {
+        _svc = svc;
     }
 
     public new async Task<MightFail<bool>> AddAsync(Visit entity)
     {
-        var existingPatient = _context.Patients.SingleOrDefault(e => e.Id == entity.PatientId);
-        if (existingPatient == null)
+        // TODO: test performance of this query, compared to multiple queries
+        var data = await _context.Templates
+            .Where(e => e.Id == entity.TemplateId)
+            .Select(e => new
+            {
+                Template = e,
+                PatientExists = _context.Patients.Any(p => p.Id == entity.PatientId)
+            })
+            .AsNoTracking()
+            .SingleOrDefaultAsync();
+
+        if (data?.Template == null)
+            return new(error: "Template with this ID not found");
+
+        if (!data.PatientExists)
             return new(error: "Patient with this ID not found");
 
-        var template = _context.Templates.SingleOrDefault(e => e.Id == entity.TemplateId);
-        if (template?.Titles.Length != entity.Fields.Length)
-            return new(error: "Fields count does not match template titles count");
+        if (!entity.FollowsTemplate(data.Template))
+            return new(error: "Visit does not follow the template");
 
-        entity.CreatedAt = DateTime.UtcNow;
+        if (data.Template.RequireTriage)
+        {
+            var triage = await _context.Triages.Where(e => e.PatientId == entity.PatientId).OrderByDescending(e => e.UpdatedAt).FirstOrDefaultAsync();
+            //  || (DateTime.UtcNow - triage.CreatedAt).TotalDays > 1
+            if (triage == null)
+                return new(error: "No valid triage was found");
+
+            entity.TriageId = triage.Id;
+        }
 
         await base.AddAsync(entity);
+        await _svc.ProcessAsync(entity);
+
         return new(data: true);
     }
 
     public IQueryable<Visit> GetByPatientId(int patientId)
     {
-        return _context.Visits.Include(e => e.Template).Where(e => e.PatientId == patientId);
+        return _context.Visits.Where(e => e.PatientId == patientId);
     }
+
+    public IQueryable<Visit> GetById(int id) => _context.Visits.Where(e => e.Id == id);
 }

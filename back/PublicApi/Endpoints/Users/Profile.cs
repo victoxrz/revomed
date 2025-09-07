@@ -1,5 +1,4 @@
 ﻿using AppCore.Interfaces.Repository;
-using Domain.Entities.Users;
 using Domain.Enums;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
@@ -11,7 +10,7 @@ namespace PublicApi.Endpoints.Users;
 
 public class Profile : BaseEndpoint
 {
-    private record GetResponse(int? TemplateId, string Email, UserRole UserRole);
+    public record GetResponse(string Email, UserRole UserRole, string Specialty);
     public override void Configure(IEndpointRouteBuilder app)
     {
         app.MapGet(Tag.ToLower() + "/profile", HandleAsync)

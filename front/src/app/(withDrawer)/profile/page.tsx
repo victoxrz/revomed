@@ -2,14 +2,10 @@ import FormLabel from "@/components/FormLabel";
 import ProfileForm from "./ProfileForm";
 import { ProfileGet } from "./actions";
 import ErrorMessage from "@/components/ErrorMessage";
-import { visitTemplateGet } from "../patients/_components/visits/actions";
 
 export default async function Profile() {
   const profile = await ProfileGet();
   if (!profile) return <ErrorMessage />;
-
-  let template;
-  if (profile.templateId) template = await visitTemplateGet();
 
   return (
     <div className="w-full bg-base-100 rounded-field">
@@ -27,15 +23,14 @@ export default async function Profile() {
           </h3>
           <div className="w-full mx-auto max-w-2xl p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {template && template.medicSpecialty && (
-                <FormLabel label="Speciality">
-                  <select className="select" name="Speciality">
-                    <option value={template.medicSpecialty}>
-                      {template.medicSpecialty}
-                    </option>
-                  </select>
-                </FormLabel>
-              )}
+              <FormLabel label="Speciality">
+                <input
+                  name="specialty"
+                  className="input"
+                  defaultValue={profile.specialty}
+                  disabled
+                />
+              </FormLabel>
             </div>
           </div>
         </div>

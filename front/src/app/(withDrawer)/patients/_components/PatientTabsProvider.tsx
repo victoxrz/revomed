@@ -1,12 +1,15 @@
 "use client";
 import { createContext, useContext } from "react";
 import { Patient } from "../types";
-import { VisitTemplate } from "./visits/types";
+import { Triage } from "./triages/types";
+import { VisitTemplate } from "../../templates/types";
 
-type PatientTabsValue =
+export type PatientTabsValue =
   | {
       patient: Patient;
       template: VisitTemplate;
+      templateNames: { id: number; name: string }[];
+      triage: Triage | null;
     }
   | undefined;
 

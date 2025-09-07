@@ -14,7 +14,7 @@ namespace AppCore.Interfaces.Repository
         /// <returns></returns>
         IQueryable<User> FindByEmail(string email);
         //Task<bool> UpdateAsync(User entity);
-        Task<User?> GetByIdAsync(int id);
+        Task<User?> GetByIdAsync(int id, CancellationToken ct = default);
         Task<User?> UpdateAsync(User original, User modified);
     }
 }

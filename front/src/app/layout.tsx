@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import ToasterWrapper from "@/components/ToasterWrapper";
 import QueryProvider from "@/components/QueryProvider";

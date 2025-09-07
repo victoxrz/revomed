@@ -4,21 +4,19 @@ using Domain.Enums;
 using FluentValidation;
 using Mapster;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using PublicApi.Endpoints.Addons;
 
 namespace PublicApi.Endpoints.Users;
 
 public class Update : BaseEndpoint
 {
-    private record UpdateRequest(UserRole UserRole, int TemplateId);
+    public record UpdateRequest(UserRole UserRole);
 
     private class UpdateRequestValidator : AbstractValidator<UpdateRequest>
     {
         public UpdateRequestValidator()
         {
             RuleFor(x => x.UserRole).IsInEnum();
-            RuleFor(x => x.TemplateId).NotEmpty().GreaterThan(0).When(x => x.UserRole == UserRole.Medic);
         }
     }
 
@@ -26,20 +24,15 @@ public class Update : BaseEndpoint
     {
         app.MapPut(Tag.ToLower() + "/update/{id}", HandleAsync)
             .RequireAuthorization()
+            .WithValidation<UpdateRequest>()
             .RequireRoles(UserRole.Admin)
             .WithTags(Tag);
 
         TypeAdapterConfig<User, User>.NewConfig().Ignore(e => e.UserRole).Compile();
     }
 
-    private async Task<IResult> HandleAsync([FromRoute] int id, [FromBody] UpdateRequest request, IUserRepository userRepo)
+    private async Task<IResult> HandleAsync([FromBody] UpdateRequest request, [FromRoute] int id, IUserRepository userRepo)
     {
-        var result = await new UpdateRequestValidator().ValidateAsync(request);
-        if (!result.IsValid)
-        {
-            return TypedResults.BadRequest(result.ToDictionary());
-        }
-
         var user = await userRepo.GetByIdAsync(id);
         if (user == null)
             return TypedResults.NotFound(new ErrorResponse("No user was found"));
@@ -47,7 +40,7 @@ public class Update : BaseEndpoint
         var modified = request.UserRole switch
         {
             UserRole.Patient => new User(),
-            UserRole.Medic => new Medic() { TemplateId = request.TemplateId },
+            UserRole.Medic => new Medic(),
             _ => null,
         };
 
