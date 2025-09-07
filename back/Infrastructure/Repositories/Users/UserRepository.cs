@@ -1,5 +1,4 @@
-﻿using AppCore.Interfaces;
-using AppCore.Interfaces.Repository;
+﻿using AppCore.Interfaces.Repository;
 using Domain.Entities.Users;
 using Infrastructure.Data;
 using Infrastructure.Identity;
@@ -28,7 +27,7 @@ namespace Infrastructure.Repositories.Users
         //    if (user == null) return new(error: "The user was not found");
 
         //    if (!_hashProvider.Verify(password, user.Password)) return new(error: "Provided credentials are incorect");
-            
+
         //    return new(data: user);
         //}
 
@@ -52,15 +51,15 @@ namespace Infrastructure.Repositories.Users
         {
             _context.Entry(original).State = EntityState.Detached;
 
-            if (modified is Medic medic)
-            {
-                var exists = _context.Templates.Any(e => e.Id == medic.TemplateId);
-                if (!exists) return null;
-            }
+            //if (modified is Medic medic)
+            //{
+            //    var exists = _context.Templates.Any(e => e.Id == medic.TemplateId);
+            //    if (!exists) return null;
+            //}
 
             _context.Users.Update(modified);
             await _context.SaveChangesAsync();
-            
+
             return original;
         }
     }

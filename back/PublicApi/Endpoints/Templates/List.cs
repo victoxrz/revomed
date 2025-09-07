@@ -6,7 +6,7 @@ namespace PublicApi.Endpoints.Templates;
 
 public class List : BaseEndpoint
 {
-    private record ListResponse(int Id, string[] Titles);
+    public record ListResponse(int Id, string Name);
 
     public override void Configure(IEndpointRouteBuilder app)
     {

@@ -7,7 +7,7 @@ namespace PublicApi.Endpoints.Templates;
 
 public class SearchBySpecialty : BaseEndpoint
 {
-    private record SearchResponse(int Id, string MedicSpecialty, string[] Titles);
+    public record SearchResponse(int Id, string MedicSpecialty, string[] Titles);
 
     public override void Configure(IEndpointRouteBuilder app)
     {
@@ -18,7 +18,7 @@ public class SearchBySpecialty : BaseEndpoint
 
     private IResult HandleAsync([FromQuery] string name, IVisitTemplateRepository repo)
     {
-        var template = repo.SearchBySpecialtyAsync(name);
+        var template = repo.SearchByNameAsync(name);
         return template == null ? TypedResults.NotFound() : TypedResults.Ok(template.ProjectToType<SearchResponse>());
     }
 }

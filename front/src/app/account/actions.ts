@@ -10,8 +10,8 @@ import {
 } from "./types";
 import { redirect } from "next/navigation";
 import z from "zod/v4";
-import { fetchPost } from "@/lib/fetchWrap";
 import { FormState } from "@/lib/definitions";
+import { fetchClient } from "@/lib/actions";
 
 export async function login(
   _state: FormState<loginErrors, Login>,
@@ -27,7 +27,7 @@ export async function login(
     };
   }
 
-  const response = await fetchPost<{ token: string }>(
+  const response = await fetchClient.post<{ token: string }>(
     "/users/login",
     new URLSearchParams(validatedFields.data),
     {
@@ -76,7 +76,7 @@ export async function signup(
 
   formData.delete("confirmPassword");
 
-  const response = await fetchPost<{ token: string }>(
+  const response = await fetchClient.post<{ token: string }>(
     "/users/signup",
     new URLSearchParams(validatedFields.data),
     {

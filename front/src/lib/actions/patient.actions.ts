@@ -1,13 +1,18 @@
 "use server";
 import { FormState } from "@/lib/definitions";
-import { patientErrors, PatientSchema, PatientModel, Patient } from "./types";
-import { fetchPost, fetchRemove, fetchGet, fetchPut } from "@/lib/fetchWrap";
+import {
+  patientErrors,
+  PatientSchema,
+  PatientModel,
+  Patient,
+} from "../../app/(withDrawer)/patients/types";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import z from "zod/v4";
+import { fetchClient } from "@/lib/actions";
 
 // https://sqids.org/
-export async function patientCreate(
+export async function create(
   _state: FormState<patientErrors, Patient>,
   formData: FormData
 ): Promise<FormState<patientErrors, Patient>> {
@@ -24,9 +29,13 @@ export async function patientCreate(
     };
   }
 
-  const response = await fetchPost("/patients/create", validatedFields.data, {
-    withAuth: true,
-  });
+  const response = await fetchClient.post(
+    "/patients/create",
+    validatedFields.data,
+    {
+      withAuth: true,
+    }
+  );
 
   if (response.message)
     return {
@@ -37,7 +46,7 @@ export async function patientCreate(
   redirect("/patients");
 }
 
-export async function patientUpdate(
+export async function update(
   _state: FormState<patientErrors, Patient>,
   formData: FormData
 ): Promise<FormState<patientErrors, Patient>> {
@@ -54,10 +63,12 @@ export async function patientUpdate(
     };
   }
 
-  const response = await fetchPut(
+  const response = await fetchClient.put(
     `/patients/update/${formData.get("id")}`,
     data,
-    { withAuth: true }
+    {
+      withAuth: true,
+    }
   );
 
   if (response.message)
@@ -71,13 +82,16 @@ export async function patientUpdate(
 }
 
 // should respond with the message
-export async function patientRemove(
+export async function remove(
   _state: { message: string } | undefined,
   formData: FormData
 ): Promise<{ message: string }> {
-  const response = await fetchRemove(`/patients/delete/${formData.get("id")}`, {
-    withAuth: true,
-  });
+  const response = await fetchClient.remove(
+    `/patients/delete/${formData.get("id")}`,
+    {
+      withAuth: true,
+    }
+  );
 
   if (response.message)
     return {
@@ -87,20 +101,30 @@ export async function patientRemove(
   redirect("/patients");
 }
 
-export async function patientList(): Promise<PatientModel[]> {
-  const response = await fetchGet<PatientModel[]>("/patients/list", {
-    withAuth: true,
-  });
+export async function getAll(page: number, pageSize: number) {
+  const response = await fetchClient.get<{
+    patients: PatientModel[];
+    totalCount: number;
+  }>(
+    "/patients/list?" +
+      new URLSearchParams({
+        page: String(page),
+        pageSize: String(pageSize),
+      }),
+    {
+      withAuth: true,
+    }
+  );
 
-  return response.data ?? [];
+  return response.data ?? { patients: [], totalCount: 0 };
 }
 
-export async function patientGet(patientId: number): Promise<Patient | null> {
-  const response = await fetchGet<Patient>(`/patients/get/${patientId}`, {
+export async function getById(id: number) {
+  const response = await fetchClient.get<Patient>(`/patients/get/${id}`, {
     withAuth: true,
+    cache: "force-cache",
+    next: { revalidate: 3600 },
   });
-
-  if (response.message) console.error("Error fetching: ", response.message);
 
   return response.data;
 }

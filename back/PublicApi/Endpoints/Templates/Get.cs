@@ -8,19 +8,19 @@ namespace PublicApi.Endpoints.Templates;
 public class Get : BaseEndpoint
 {
     // maybe titles arent needed
-    public record GetResponse(int Id, string MedicSpecialty, string[] Titles);
+    public record GetResponse(int Id, string Name, List<List<string>> Titles, bool RequireTriage);
 
     public override void Configure(IEndpointRouteBuilder app)
     {
         app.MapGet(Tag.ToLower() + "/get/{id}", HandleAsync)
             .RequireAuthorization()
-            .RequireRoles(Domain.Enums.UserRole.Medic)
+            .RequireRoles(Domain.Enums.UserRole.Medic, Domain.Enums.UserRole.Admin)
             .WithTags(Tag);
     }
 
-    public async Task<IResult> HandleAsync([FromRoute] int id, IVisitTemplateRepository repo)
+    private async Task<IResult> HandleAsync([FromRoute] int id, IVisitTemplateRepository repo, CancellationToken ct = default)
     {
-        var template = await repo.GetByIdAsync(id);
+        var template = await repo.GetByIdAsync(id, ct);
         if (template == null)
             return TypedResults.NotFound();
 

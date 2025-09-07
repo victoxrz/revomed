@@ -1,22 +1,17 @@
 "use server";
+import { fetchClient } from "@/lib/actions";
 import { Role } from "@/lib/dal";
-import { fetchGet } from "@/lib/fetchWrap";
 
 export type Profile = {
   email: string;
-  templateId: number | null;
   userRole: Role;
+  specialty?: string;
 };
 
 export async function ProfileGet() {
-  const response = await fetchGet<Profile>("/users/profile", {
+  const response = await fetchClient.get<Profile>("/users/profile", {
     withAuth: true,
   });
-
-  if (response.message) {
-    console.error("Error fetching: ", response.message);
-  }
-  console.dir(response.data);
 
   return response.data;
 }

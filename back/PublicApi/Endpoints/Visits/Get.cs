@@ -15,9 +15,9 @@ public class Get
         //    .WithTags(tag);
     }
 
-    public async Task<IResult> HandleAsync([FromRoute] int id, IVisitRepository repo)
+    public async Task<IResult> HandleAsync([FromRoute] int id, IVisitRepository repo, CancellationToken ct = default)
     {
-        var visit = await repo.GetByIdAsync(id);
+        var visit = await repo.GetByIdAsync(id, ct);
         if (visit == null)
             return TypedResults.BadRequest();
 

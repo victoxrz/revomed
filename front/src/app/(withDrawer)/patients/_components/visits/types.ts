@@ -7,15 +7,16 @@ export const VisitSchema = z.object({
   templateId: z.coerce
     .number()
     .positive("Template ID must be a positive integer"),
-  fields: z.array(z.string().nonempty("Fields must not be empty")),
+  fields: z.record(z.string(), z.string().trim()).refine(
+    (f) => {
+      const keys = Object.keys(f);
+      return keys.length > 0 && keys.every((k) => f[k].length > 0);
+    },
+    {
+      path: ["fields"],
+      error: "Field value cannot be empty",
+    }
+  ),
 });
 export type Visit = z.infer<typeof VisitSchema>;
-export type visitErrors = z.ZodFlattenedError<Visit>;
-
-export const VisitTemplateSchema = z.object({
-  id: z.coerce.number(),
-  medicSpecialty: z.string().nonempty(),
-  titles: z.array(z.string().nonempty("Title must not be empty")),
-});
-export type VisitTemplate = z.infer<typeof VisitTemplateSchema>;
-export type VisitTemplateErrors = z.ZodFlattenedError<VisitTemplate>;
+export type VisitErrors = z.ZodFlattenedError<Visit>;

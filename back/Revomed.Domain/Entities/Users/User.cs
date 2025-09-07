@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Domain.Entities.Users;
 
-public class User
+public class User : BaseEntity
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -13,6 +13,12 @@ public class User
     [Required]
     [StringLength(40)]
     public string Email { get; set; } = string.Empty;
+
+    [StringLength(30, MinimumLength = 1)]
+    public string FirstName { get; set; } = string.Empty;
+
+    [StringLength(30, MinimumLength = 1)]
+    public string LastName { get; set; } = string.Empty;
 
     [Required]
     [Column(TypeName = "text")]

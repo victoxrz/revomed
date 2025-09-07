@@ -5,76 +5,77 @@ import toast from "react-hot-toast";
 import FormLabel from "@/components/FormLabel";
 import { FaSave } from "react-icons/fa";
 import { patientErrors, Patient } from "../types";
+import { IoMdInformationCircle } from "react-icons/io";
+import { useQuery } from "@tanstack/react-query";
+import { fetchClient } from "@/lib/actions";
 
 export default function PatientForm({
   className,
-  toExecute,
+  mutateAction,
   patient,
 }: {
   className?: string;
-  toExecute: (
+  mutateAction: (
     _state: FormState<patientErrors, Patient>,
     formData: FormData
   ) => Promise<FormState<patientErrors, Patient>>;
   patient: Patient | null;
 }) {
-  const [state, action] = useActionState(toExecute, {
+  const [state, action] = useActionState(mutateAction, {
     inputs: patient,
     message: "",
   });
 
   useEffect(() => {
     if (state.message) {
-      toast.error(state.message);
+      if (state.isSuccesful) {
+        toast.success(state.message);
+      } else {
+        toast.error(state.message);
+      }
     }
   }, [state]);
 
   const fieldErrors = state.errors?.fieldErrors || {};
 
   return (
-    <form
-      className={`w-full mx-auto max-w-2xl p-6 ${className}`}
-      action={action}
-    >
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <form className={className} action={action}>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
         <input type="hidden" name="id" value={patient?.id} />
         <FormLabel label="Last name" error={fieldErrors.lastName}>
-          <div className="input flex mb-4 w-full">
-            <input
-              name="lastName"
-              type="text"
-              defaultValue={state.inputs?.lastName}
-              required
-            />
-          </div>
+          <input
+            name="lastName"
+            type="text"
+            className="input flex w-full"
+            defaultValue={state.inputs?.lastName}
+            required
+          />
         </FormLabel>
 
         <FormLabel label="First name" error={fieldErrors.firstName}>
-          <div className="input flex mb-4 w-full">
-            <input
-              name="firstName"
-              type="text"
-              defaultValue={state.inputs?.firstName}
-              required
-            />
-          </div>
+          <input
+            name="firstName"
+            type="text"
+            className="input flex w-full"
+            defaultValue={state.inputs?.firstName}
+            required
+          />
         </FormLabel>
 
         <FormLabel label="Patronymic" error={fieldErrors.patronymic}>
-          <div className="input flex mb-4 w-full">
-            <input
-              name="patronymic"
-              type="text"
-              defaultValue={state.inputs?.patronymic}
-            />
-          </div>
+          <input
+            name="patronymic"
+            type="text"
+            className="input flex w-full"
+            defaultValue={state.inputs?.patronymic}
+          />
         </FormLabel>
 
         <FormLabel label="Birthday" error={fieldErrors.birthday}>
           <input
             name="birthday"
             type="date"
-            className="input flex mb-4 w-full"
+            className="input flex w-full"
             defaultValue={state.inputs?.birthday.toString()}
             required
           />
@@ -82,7 +83,7 @@ export default function PatientForm({
 
         <FormLabel label="Gender" error={fieldErrors.gender}>
           <select
-            className="select flex mb-4"
+            className="select flex"
             name="gender"
             defaultValue={state.inputs?.gender}
             required
@@ -95,7 +96,7 @@ export default function PatientForm({
 
         <FormLabel label="Blood type" error={fieldErrors.bloodType}>
           <select
-            className="select flex mb-4"
+            className="select flex"
             name="bloodType"
             defaultValue={state.inputs?.bloodType}
             required
@@ -112,58 +113,84 @@ export default function PatientForm({
         </FormLabel>
 
         <FormLabel label="IDNP" error={fieldErrors.idnp}>
-          <div className="input flex mb-4 w-full">
-            <input
-              name="idnp"
-              type="text"
-              defaultValue={state.inputs?.idnp}
-              required
-            />
-          </div>
+          <input
+            name="idnp"
+            type="text"
+            className="input flex w-full"
+            defaultValue={state.inputs?.idnp}
+            required
+          />
         </FormLabel>
 
         <FormLabel label="Phone number" error={fieldErrors.phone}>
-          <div className="input flex mb-4 w-full">
-            <input
-              name="phone"
-              type="text"
-              defaultValue={state.inputs?.phone}
-              required
-            />
-          </div>
+          <input
+            name="phone"
+            type="text"
+            className="input flex w-full"
+            defaultValue={state.inputs?.phone}
+            required
+          />
         </FormLabel>
 
         <FormLabel label="Job" error={fieldErrors.job}>
-          <div className="input flex mb-4 w-full">
-            <input
-              name="job"
-              type="text"
-              defaultValue={state.inputs?.job}
-              required
-            />
+          <input
+            name="job"
+            type="text"
+            className="input flex w-full"
+            defaultValue={state.inputs?.job}
+            required
+          />
+        </FormLabel>
+
+        <FormLabel label="Insurance policy" error={fieldErrors.insurancePolicy}>
+          <input
+            name="insurancePolicy"
+            type="text"
+            className="input flex mb-1 w-full"
+            defaultValue={state.inputs?.insurancePolicy}
+            required
+          />
+          <div className="flex items-center">
+            <div
+              className={`badge badge-soft px-2 gap-1 ${
+                patient?.isInsured === null
+                  ? "badge-info"
+                  : patient?.isInsured
+                  ? "badge-success"
+                  : "badge-error"
+              }`}
+            >
+              <IoMdInformationCircle
+                size={19}
+                title="Information provided by cnam.gov.md"
+              />
+              {patient?.isInsured === null
+                ? "necunoscut"
+                : patient?.isInsured
+                ? "asigurat"
+                : "neasigurat"}
+            </div>
           </div>
         </FormLabel>
 
         <FormLabel label="Street address" error={fieldErrors.streetAddress}>
-          <div className="input flex mb-4 w-full">
-            <input
-              name="streetAddress"
-              type="text"
-              defaultValue={state.inputs?.streetAddress}
-              required
-            />
-          </div>
+          <input
+            name="streetAddress"
+            type="text"
+            className="input flex w-full"
+            defaultValue={state.inputs?.streetAddress}
+            required
+          />
         </FormLabel>
 
         <FormLabel label="Country" error={fieldErrors.country}>
-          <div className="input flex mb-4 w-full">
-            <input
-              name="country"
-              type="text"
-              defaultValue={state.inputs?.country}
-              required
-            />
-          </div>
+          <input
+            name="country"
+            type="text"
+            className="input flex w-full"
+            defaultValue={state.inputs?.country}
+            required
+          />
         </FormLabel>
       </div>
 
