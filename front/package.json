@@ -22,7 +22,7 @@
     "next": "15.5.9",
     "openid-client": "^6.8.1",
     "pizzip": "^3.2.0",
-    "puppeteer": "^24.15.0",
+    "puppeteer": "^24.34.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-hot-toast": "^2.5.2",
