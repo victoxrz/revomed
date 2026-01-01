@@ -6,8 +6,6 @@ import FormLabel from "@/components/FormLabel";
 import { FaSave } from "react-icons/fa";
 import { patientErrors, Patient } from "../types";
 import { IoMdInformationCircle } from "react-icons/io";
-import { useQuery } from "@tanstack/react-query";
-import { fetchClient } from "@/lib/actions";
 
 export default function PatientForm({
   className,
@@ -28,7 +26,7 @@ export default function PatientForm({
 
   useEffect(() => {
     if (state.message) {
-      if (state.isSuccesful) {
+      if (state.isSuccessful) {
         toast.success(state.message);
       } else {
         toast.error(state.message);

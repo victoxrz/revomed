@@ -1,6 +1,6 @@
 "use server";
 import { fetchClient } from "@/lib/actions";
-import { Role } from "@/lib/dal";
+import { Role } from "@/lib/requireRoles";
 
 export type Profile = {
   email: string;

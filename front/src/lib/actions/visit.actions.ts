@@ -54,7 +54,7 @@ export async function create(
   return {
     inputs: null,
     message: "Visit created successfully.",
-    isSuccesful: true,
+    isSuccessful: true,
   };
 }
 

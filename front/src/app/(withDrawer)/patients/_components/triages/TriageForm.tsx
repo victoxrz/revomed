@@ -26,7 +26,7 @@ export default function TriageForm({
 
   useEffect(() => {
     if (state.message) {
-      if (state.isSuccesful) {
+      if (state.isSuccessful) {
         toast.success(state.message);
       } else {
         toast.error(state.message);

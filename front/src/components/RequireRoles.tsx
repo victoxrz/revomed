@@ -1,4 +1,4 @@
-import { requireRoles, Role } from "@/lib/dal";
+import { requireRoles, Role } from "@/lib/requireRoles";
 import { notFound } from "next/navigation";
 
 export default async function RequireRoles(allowed: Role[]) {

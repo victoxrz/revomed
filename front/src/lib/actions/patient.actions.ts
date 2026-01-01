@@ -14,10 +14,10 @@ import { fetchClient } from "@/lib/actions";
 // https://sqids.org/
 export async function create(
   _state: FormState<patientErrors, Patient>,
-  formData: FormData
+  formData: FormData,
 ): Promise<FormState<patientErrors, Patient>> {
   const data: Patient = Object.fromEntries(
-    formData.entries()
+    formData.entries(),
   ) as unknown as Patient;
 
   const validatedFields = PatientSchema.safeParse(data);
@@ -34,7 +34,7 @@ export async function create(
     validatedFields.data,
     {
       withAuth: true,
-    }
+    },
   );
 
   if (response.message)
@@ -48,10 +48,10 @@ export async function create(
 
 export async function update(
   _state: FormState<patientErrors, Patient>,
-  formData: FormData
+  formData: FormData,
 ): Promise<FormState<patientErrors, Patient>> {
   const data: Patient = Object.fromEntries(
-    formData.entries()
+    formData.entries(),
   ) as unknown as Patient;
 
   const validatedFields = PatientSchema.safeParse(data);
@@ -68,7 +68,7 @@ export async function update(
     data,
     {
       withAuth: true,
-    }
+    },
   );
 
   if (response.message)
@@ -84,13 +84,13 @@ export async function update(
 // should respond with the message
 export async function remove(
   _state: { message: string } | undefined,
-  formData: FormData
+  formData: FormData,
 ): Promise<{ message: string }> {
   const response = await fetchClient.remove(
     `/patients/delete/${formData.get("id")}`,
     {
       withAuth: true,
-    }
+    },
   );
 
   if (response.message)
@@ -113,7 +113,7 @@ export async function getAll(page: number, pageSize: number) {
       }),
     {
       withAuth: true,
-    }
+    },
   );
 
   return response.data ?? { patients: [], totalCount: 0 };

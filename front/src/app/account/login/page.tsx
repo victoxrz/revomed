@@ -2,6 +2,7 @@
 import { useState, useActionState, useEffect } from "react";
 import { FaEyeSlash, FaEye } from "react-icons/fa6";
 import { IoMail, IoKey } from "react-icons/io5";
+import { FcGoogle } from "react-icons/fc";
 import toast from "react-hot-toast";
 import FormLabel from "@/components/FormLabel";
 import { login } from "../actions";
@@ -67,11 +68,11 @@ export default function LoginForm() {
           Login
         </button>
         <div className="divider text-gray-500 my-2">or</div>
-        <div>
+        {/* <div>
           <div
             id="g_id_onload"
             // data-login_uri="https://your-site.example.com/auth/google/callback"
-            data-client_id={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID}
+            data-client_id={process.env.GOOGLE_CLIENT_ID}
             data-auto_prompt="false"
           ></div>
           <div
@@ -82,6 +83,12 @@ export default function LoginForm() {
             data-text="signin"
             data-size="large"
           ></div>
+        </div> */}
+        <div className="flex justify-center">
+          <a href="/account/google/login" className="btn btn-outline w-full">
+            <FcGoogle size={24} />
+            Sign in with Google
+          </a>
         </div>
         <div className="flex justify-center text-base-content">
           Don't have an account?

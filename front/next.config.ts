@@ -8,9 +8,7 @@ const nextConfig: NextConfig = {
       fullUrl: false, // it does anything??
     },
   },
-  experimental: {
-    typedRoutes: true,
-  },
+  typedRoutes: true,
   serverExternalPackages: ["@soniox/soniox-node"],
   // reactStrictMode: false,
   /* config options here */

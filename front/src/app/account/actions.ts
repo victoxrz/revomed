@@ -15,7 +15,7 @@ import { fetchClient } from "@/lib/actions";
 
 export async function login(
   _state: FormState<loginErrors, Login>,
-  formData: FormData
+  formData: FormData,
 ): Promise<FormState<loginErrors, Login>> {
   const data: Login = Object.fromEntries(formData.entries()) as Login;
   const validatedFields = LoginSchema.safeParse(data);
@@ -27,14 +27,14 @@ export async function login(
     };
   }
 
-  const response = await fetchClient.post<{ token: string }>(
+  const response = await fetchClient.post<{ sessionId: string }>(
     "/users/login",
     new URLSearchParams(validatedFields.data),
     {
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
       },
-    }
+    },
   );
 
   if (response.message)
@@ -46,11 +46,12 @@ export async function login(
   if (response.data) {
     (await cookies()).set({
       name: process.env.AUTH_TOKEN_NAME!,
-      value: response.data.token,
+      value: response.data.sessionId,
       httpOnly: true,
       secure: true,
       sameSite: "strict",
     });
+
     redirect("/");
   }
 
@@ -62,7 +63,7 @@ export async function login(
 
 export async function signup(
   _state: FormState<signupErrors, Signup>,
-  formData: FormData
+  formData: FormData,
 ): Promise<FormState<signupErrors, Signup>> {
   const data: Signup = Object.fromEntries(formData.entries()) as Signup;
   const validatedFields = SignupSchema.safeParse(data);
@@ -83,7 +84,7 @@ export async function signup(
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
       },
-    }
+    },
   );
 
   if (response.data) {
