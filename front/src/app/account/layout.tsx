@@ -1,4 +1,4 @@
-import { validateSession } from "@/lib/dal";
+import { validateSession } from "@/lib/validateSession";
 import { redirect } from "next/navigation";
 import Script from "next/script";
 

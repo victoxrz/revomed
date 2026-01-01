@@ -44,7 +44,7 @@ export async function create(
   return {
     inputs: null,
     message: "Triage created successfully.",
-    isSuccesful: true,
+    isSuccessful: true,
   };
 }
 

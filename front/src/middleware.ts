@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { validateSession } from "./lib/dal";
+import { cookies } from "next/headers";
 
 export async function middleware(req: NextRequest) {
-  const { isLoggedIn } = await validateSession();
+  const isLoggedIn = (await cookies()).has(process.env.AUTH_TOKEN_NAME!);
 
   if (!isLoggedIn) {
     return NextResponse.redirect(new URL("/account/login", req.nextUrl.origin));

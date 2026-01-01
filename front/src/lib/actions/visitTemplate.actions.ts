@@ -48,7 +48,7 @@ export async function create(
   return {
     inputs: null,
     message: "success",
-    isSuccesful: true,
+    isSuccessful: true,
   };
 }
 
@@ -116,6 +116,6 @@ export async function update(
   return {
     inputs: validatedFields.data,
     message: "success",
-    isSuccesful: true,
+    isSuccessful: true,
   };
 }
