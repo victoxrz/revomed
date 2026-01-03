@@ -12,7 +12,8 @@ public class VisitRepository : BaseRepository<Visit>, IVisitRepository
 {
     private readonly IProcessVisitService _svc;
 
-    public VisitRepository(PostgresDbContext context, IProcessVisitService svc, ILogger<BaseRepository<Visit>> logger /* TODO: idk if this template param */) : base(context)
+    public VisitRepository(PostgresDbContext context, IProcessVisitService svc)
+        : base(context)
     {
         _svc = svc;
     }
@@ -20,12 +21,12 @@ public class VisitRepository : BaseRepository<Visit>, IVisitRepository
     public new async Task<MightFail<bool>> AddAsync(Visit entity)
     {
         // TODO: test performance of this query, compared to multiple queries
-        var data = await _context.Templates
-            .Where(e => e.Id == entity.TemplateId)
+        var data = await _context
+            .Templates.Where(e => e.Id == entity.TemplateId)
             .Select(e => new
             {
                 Template = e,
-                PatientExists = _context.Patients.Any(p => p.Id == entity.PatientId)
+                PatientExists = _context.Patients.Any(p => p.Id == entity.PatientId),
             })
             .AsNoTracking()
             .SingleOrDefaultAsync();
@@ -41,7 +42,10 @@ public class VisitRepository : BaseRepository<Visit>, IVisitRepository
 
         if (data.Template.RequireTriage)
         {
-            var triage = await _context.Triages.Where(e => e.PatientId == entity.PatientId).OrderByDescending(e => e.UpdatedAt).FirstOrDefaultAsync();
+            var triage = await _context
+                .Triages.Where(e => e.PatientId == entity.PatientId)
+                .OrderByDescending(e => e.UpdatedAt)
+                .FirstOrDefaultAsync();
             //  || (DateTime.UtcNow - triage.CreatedAt).TotalDays > 1
             if (triage == null)
                 return new(error: "No valid triage was found");

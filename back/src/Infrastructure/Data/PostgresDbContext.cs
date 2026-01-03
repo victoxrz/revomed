@@ -9,9 +9,8 @@ namespace Infrastructure.Data
 {
     public class PostgresDbContext : DbContext
     {
-        public PostgresDbContext(DbContextOptions<PostgresDbContext> options) : base(options)
-        {
-        }
+        public PostgresDbContext(DbContextOptions<PostgresDbContext> options)
+            : base(options) { }
 
         public DbSet<Patient> Patients { get; set; }
         public DbSet<User> Users { get; set; }
@@ -27,7 +26,6 @@ namespace Infrastructure.Data
         //    base.ConfigureConventions(configurationBuilder);
         //}
 
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasPostgresExtension("pg_trgm");
@@ -36,15 +34,19 @@ namespace Infrastructure.Data
             modelBuilder.Entity<VisitTemplate>(e =>
             {
                 e.HasIndex(e => e.Name).IsUnique();
-                e.ToTable(t => t.HasCheckConstraint("CK_VisitTemplate_Name_NotEmpty", "char_length(\"Name\") >= 1"));
+                e.ToTable(t =>
+                    t.HasCheckConstraint("CK_VisitTemplate_Name_NotEmpty", "char_length(\"Name\") >= 1")
+                );
             });
 
             modelBuilder.Entity<Patient>().HasIndex(e => e.Idnp).IsUnique();
 
-            modelBuilder.Entity<User>()
+            modelBuilder
+                .Entity<User>()
                 .UseTphMappingStrategy()
                 .HasDiscriminator(e => e.UserRole)
-                .HasValue<User>(UserRole.Patient)
+                .HasValue<User>(UserRole.User)
+                .HasValue<Patient>(UserRole.Patient)
                 .HasValue<Medic>(UserRole.Medic);
 
             modelBuilder.Entity<Visit>(e =>

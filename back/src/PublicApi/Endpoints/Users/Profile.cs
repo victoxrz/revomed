@@ -10,7 +10,34 @@ namespace PublicApi.Endpoints.Users;
 
 public class Profile : BaseEndpoint
 {
-    public record GetResponse(string Email, UserRole UserRole, string Specialty);
+    public record GetUserResponse
+    {
+        public int Id { get; init; }
+        public required string LastName { get; init; }
+        public required string FirstName { get; init; }
+        public required string Email { get; init; }
+        public UserRole UserRole { get; init; }
+    }
+
+    public record GetMedicResponse : GetUserResponse
+    {
+        public required string Specialty { get; init; }
+    };
+
+    public record GetPatientResponse : GetUserResponse
+    {
+        public required string Patronymic { get; init; }
+        public DateOnly Birthday { get; init; }
+        public Gender Gender { get; init; }
+        public required string Idnp { get; init; }
+        public required string Job { get; init; }
+        public required string Phone { get; init; }
+        public required string StreetAddress { get; init; }
+        public required string Country { get; init; }
+        public BloodType BloodType { get; init; }
+        public required string InsurancePolicy { get; init; }
+        public bool? IsInsured { get; init; }
+    };
 
     public override RouteHandlerBuilder Configure(IEndpointRouteBuilder app)
     {
@@ -25,6 +52,12 @@ public class Profile : BaseEndpoint
 
         var user = await repo.FindByEmail(email).SingleOrDefaultAsync();
 
-        return TypedResults.Ok(user.Adapt<GetResponse>());
+        return (user?.UserRole) switch
+        {
+            UserRole.User or UserRole.Admin => TypedResults.Ok(user.Adapt<GetUserResponse>()),
+            UserRole.Medic => TypedResults.Ok(user.Adapt<GetMedicResponse>()),
+            UserRole.Patient => TypedResults.Ok(user.Adapt<GetPatientResponse>()),
+            _ => TypedResults.BadRequest(new ErrorResponse("Try to log in again")),
+        };
     }
 }

@@ -174,7 +174,7 @@ namespace PublicApi
                         {
                             Type = SecuritySchemeType.ApiKey,
                             In = ParameterLocation.Header,
-                            Name = "Session",
+                            Name = "Authorization",
                         },
                     };
                     document.Components ??= new OpenApiComponents();

@@ -2,7 +2,7 @@ import "server-only";
 import { cookies } from "next/headers";
 import { getRedisClient } from "./redis";
 
-export type Role = "Medic" | "Pacient";
+export type Role = "Medic" | "Patient" | "Admin" | "User";
 
 interface SessionData {
   exp: number;

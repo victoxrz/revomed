@@ -1,5 +1,5 @@
 import FormLabel from "@/components/FormLabel";
-import { Profile } from "./actions";
+import { Profile } from "./types";
 
 export default function ProfileForm({ profile }: { profile: Profile }) {
   const data = ["Email address"];

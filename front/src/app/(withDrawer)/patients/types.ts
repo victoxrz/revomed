@@ -1,3 +1,4 @@
+import { Role } from "@/lib/requireRoles";
 import z from "zod/v4";
 
 export interface PatientModel {
@@ -12,6 +13,7 @@ export interface PatientModel {
 export const PatientSchema = z
   .object({
     id: z.coerce.number(),
+    email: z.email().trim().nonempty("Email must not be empty"),
     lastName: z.string().trim().nonempty("Last name must not be empty").max(30),
     firstName: z
       .string()
@@ -56,7 +58,10 @@ export const PatientSchema = z
   });
 export type Patient = z.infer<typeof PatientSchema> & {
   isInsured?: boolean | null;
+  userRole: Role;
 };
+export type PatientProfile = Omit<Patient, "id">;
+
 export type patientErrors = z.ZodFlattenedError<Patient>;
 
 /**

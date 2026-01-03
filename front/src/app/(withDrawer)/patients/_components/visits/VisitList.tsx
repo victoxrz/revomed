@@ -1,10 +1,11 @@
+"use client";
 import { useQuery } from "@tanstack/react-query";
-import { usePatientTabsContext } from "../PatientTabsProvider";
 import { visit } from "@/lib/actions";
 import { Triage } from "../triages/types";
 import TriageView from "../triages/TriageView";
 import { IoPrintSharp } from "react-icons/io5";
 import Link from "next/link";
+import { Patient } from "../../types";
 
 export interface TriageItem {
   temperature: number;
@@ -30,9 +31,13 @@ export interface VisitItem {
   triage?: Triage;
 }
 
-export default function VisitListView({ className }: { className?: string }) {
-  const patient = usePatientTabsContext().patient;
-
+export default function VisitListView({
+  className,
+  patient,
+}: {
+  className?: string;
+  patient: Patient;
+}) {
   const { data: visitList, isLoading } = useQuery<VisitItem[]>({
     queryKey: ["/visits/getByPatientId", patient.id],
     queryFn: async () => (await visit.getByPatientId(patient.id)) ?? [],
@@ -42,7 +47,7 @@ export default function VisitListView({ className }: { className?: string }) {
 
   if (isLoading)
     return (
-      // modify the skeleton once decided with the view page
+      // TODO: modify the skeleton once decided with the view page
       <>
         <div className="skeleton bg-base-300 animate-pulse w-full mx-auto h-40"></div>
         <div className="skeleton bg-base-300 animate-pulse w-full mx-auto mt-6 h-40"></div>
@@ -81,7 +86,7 @@ function VisitItemView({
         {i1 <= 1 && <h3>{visit.titles[i0][0]}</h3>}
         {i1 > 0 && <h4>{visit.titles[i0][i1]}</h4>}
         <p>{visit.fields[k]}</p>
-      </div>
+      </div>,
     );
   });
 

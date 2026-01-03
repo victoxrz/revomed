@@ -9,4 +9,5 @@ public enum UserRole : ushort
     Patient = 0,
     Medic = 1,
     Admin = 2,
+    User = 3,
 }

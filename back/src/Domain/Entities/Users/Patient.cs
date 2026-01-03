@@ -4,20 +4,10 @@ using Domain.Enums;
 
 namespace Domain.Entities.Users;
 
-public class Patient
+public class Patient : User
 {
-    [Key]
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public int Id { get; set; }
-
-    [StringLength(30, MinimumLength = 1)]
-    public string FirstName { get; set; } = string.Empty;
-
     [StringLength(30)]
-    public string LastName { get; set; } = string.Empty;
-
-    [StringLength(30)]
-    public string Patronymic { get; set; } = string.Empty;
+    public string? Patronymic { get; set; }
 
     [Column(TypeName = "smallint")]
     public Gender Gender { get; set; }

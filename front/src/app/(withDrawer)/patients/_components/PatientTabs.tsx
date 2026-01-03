@@ -33,7 +33,12 @@ export default function PatientTabs() {
     },
     {
       label: "Visits history",
-      content: <VisitListView className="rounded-field bg-base-100 divide-y" />,
+      content: (
+        <VisitListView
+          className="rounded-field bg-base-100 divide-y"
+          patient={ctx.patient}
+        />
+      ),
     },
   ];
 

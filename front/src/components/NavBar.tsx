@@ -6,14 +6,30 @@ import { IoLogOutOutline } from "react-icons/io5";
 import { TiUser } from "react-icons/ti";
 import { PiSidebarSimple } from "react-icons/pi";
 
-// TODO: find out if its still important to close the navbar, if not clean up, also the layout don't forget
+const SIDEBAR_STORAGE_KEY = "sidebarOpen";
+
+// TODO: it drives me crazy the sidebar opening when refreshing the page
 export default function NavBar({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
 
   useEffect(() => {
-    setIsOpen(typeof window !== "undefined" && window.innerWidth >= 1024);
-  }, []);
+    const storedIsOpen = localStorage.getItem(SIDEBAR_STORAGE_KEY);
+    // if null, default to open
+    setIsOpen((storedIsOpen ?? "true") === "true");
+
+    // Open details if it contains active link
+    document.querySelectorAll("details").forEach((details) => {
+      if (details.querySelector(".menu-active")) {
+        details.open = true;
+      }
+    });
+  }, [pathname]);
+
+  const toogleSidebar = (newValue: boolean) => {
+    setIsOpen(newValue);
+    localStorage.setItem(SIDEBAR_STORAGE_KEY, String(newValue));
+  };
 
   return (
     <div className="bg-base-200 flex">
@@ -21,7 +37,7 @@ export default function NavBar({ children }: { children: React.ReactNode }) {
         className={`z-10 max-lg:visible invisible fixed inset-0 bg-black/30 transition-opacity duration-300 ${
           isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
-        onClick={() => setIsOpen(false)}
+        onClick={() => toogleSidebar(false)}
       ></div>
       <div
         className={`z-10 flex flex-col fixed h-screen w-48 pr-2 transform ${
@@ -35,7 +51,7 @@ export default function NavBar({ children }: { children: React.ReactNode }) {
             </Link>
           </li>
           <li>
-            <details open>
+            <details>
               <summary>Patient</summary>
               <ul>
                 <li>
@@ -72,6 +88,21 @@ export default function NavBar({ children }: { children: React.ReactNode }) {
               </ul>
             </details>
           </li>
+          <li>
+            <details>
+              <summary>Your information</summary>
+              <ul>
+                <li>
+                  <Link
+                    href={"/visits/me"}
+                    className={pathname === "/visits/me" ? "menu-active" : ""}
+                  >
+                    Your visits
+                  </Link>
+                </li>
+              </ul>
+            </details>
+          </li>
         </ul>
         <ul className="menu w-full font-semibold">
           <li>
@@ -100,7 +131,7 @@ export default function NavBar({ children }: { children: React.ReactNode }) {
       >
         <div className="pl-6 pt-2">
           <button
-            onClick={() => setIsOpen(!isOpen)}
+            onClick={() => toogleSidebar(!isOpen)}
             className="btn btn-sm btn-square btn-ghost"
           >
             <PiSidebarSimple size={19} />
