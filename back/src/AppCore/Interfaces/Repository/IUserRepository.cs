@@ -13,8 +13,11 @@ namespace AppCore.Interfaces.Repository
         /// <param name="email"></param>
         /// <returns></returns>
         IQueryable<User> FindByEmail(string email);
+
         //Task<bool> UpdateAsync(User entity);
         Task<User?> GetByIdAsync(int id, CancellationToken ct = default);
+        IQueryable<User> GetAll();
         Task<User?> UpdateAsync(User original, User modified);
+        Task<bool> DeleteAsync(User entity);
     }
 }

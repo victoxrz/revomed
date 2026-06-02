@@ -1,16 +1,17 @@
 "use server";
-import { fetchClient } from "@/lib/actions";
+import axiosInstance from "@/lib/axiosConfig";
+import { APIError } from "@/lib/errors";
 import {
   VisitTemplate,
   VisitTemplateErrors,
   VisitTemplateSchema,
 } from "../../app/(withDrawer)/templates/types";
-import { FormState } from "@/lib/definitions";
+import { FormState, GENERIC_ERROR_MESSAGE } from "@/lib/definitions";
 import z from "zod/v4";
 
 export async function create(
   _state: FormState<VisitTemplateErrors, VisitTemplate>,
-  formData: FormData
+  formData: FormData,
 ): Promise<FormState<VisitTemplateErrors, VisitTemplate>> {
   const data: VisitTemplate = {
     id: Number(formData.get("id")),
@@ -31,54 +32,64 @@ export async function create(
     };
   }
 
-  const response = await fetchClient.post(
-    "/templates/create",
-    validatedFields.data,
-    {
-      withAuth: true,
-    }
-  );
+  try {
+    await axiosInstance.post("/templates/create", validatedFields.data);
 
-  if (response.message)
+    return {
+      inputs: null,
+      message: "success",
+      isSuccessful: true,
+    };
+  } catch (error) {
     return {
       inputs: validatedFields.data,
-      message: response.message,
+      message:
+        error instanceof APIError ? error.message : GENERIC_ERROR_MESSAGE,
     };
-
-  return {
-    inputs: null,
-    message: "success",
-    isSuccessful: true,
-  };
+  }
 }
 
 export async function getById(id: number) {
-  const response = await fetchClient.get<VisitTemplate>(
+  const response = await axiosInstance.get<VisitTemplate>(
     `/templates/get/${id}`,
     {
-      withAuth: true,
-      // cache: "force-cache",
-    }
+      fetchOptions: {
+        next: {
+          tags: [`/templates/get/${id}`],
+          revalidate: 60 * 60,
+        },
+        cache: "force-cache",
+      },
+    },
   );
 
   return response.data;
 }
 
-export async function getAll() {
-  const response = await fetchClient.get<{ id: number; name: string }[]>(
-    "/templates/list",
-    {
-      withAuth: true,
-      // cache: "force-cache",
-    }
-  );
+export async function getAll(page: number, pageSize: number) {
+  const response = await axiosInstance.get<{
+    templates: { id: number; name: string }[];
+    totalCount: number;
+  }>("/templates/list", {
+    params: {
+      page: String(page),
+      pageSize: String(pageSize),
+    },
+    fetchOptions: {
+      next: {
+        tags: [`/templates/list?page=${page}&pageSize=${pageSize}`],
+        revalidate: 60 * 60,
+      },
+      cache: "force-cache",
+    },
+  });
 
-  return response.data;
+  return response.data ?? { templates: [], totalCount: 0 };
 }
 
 export async function update(
   _state: FormState<VisitTemplateErrors, VisitTemplate>,
-  formData: FormData
+  formData: FormData,
 ): Promise<FormState<VisitTemplateErrors, VisitTemplate>> {
   const data: VisitTemplate = {
     id: Number(formData.get("id")),
@@ -99,23 +110,22 @@ export async function update(
     };
   }
 
-  const response = await fetchClient.put(
-    `/templates/update/${validatedFields.data.id}`,
-    validatedFields.data,
-    {
-      withAuth: true,
-    }
-  );
+  try {
+    await axiosInstance.put(
+      `/templates/update/${validatedFields.data.id}`,
+      validatedFields.data,
+    );
 
-  if (response.message)
     return {
       inputs: validatedFields.data,
-      message: response.message,
+      message: "success",
+      isSuccessful: true,
     };
-
-  return {
-    inputs: validatedFields.data,
-    message: "success",
-    isSuccessful: true,
-  };
+  } catch (error) {
+    return {
+      inputs: validatedFields.data,
+      message:
+        error instanceof APIError ? error.message : GENERIC_ERROR_MESSAGE,
+    };
+  }
 }

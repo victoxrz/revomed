@@ -28,7 +28,7 @@ public class Login : BaseEndpoint
     {
         return app.MapPost(Tag.ToLower() + "/login", HandleAsync)
             .WithValidation<LoginRequest>()
-            .DisableAntiforgery()
+            .DisableAntiforgery() // TODO: check next.js if it uses CSRF tokens => use FromBody instead of FromForm
             .AllowAnonymous()
             .WithTags(Tag);
     }
@@ -38,11 +38,10 @@ public class Login : BaseEndpoint
         HttpContext httpContext,
         HashProvider hashProvider,
         IUserRepository repo,
-        ISessionStore sessionStore,
-        CancellationToken ct = default
+        ISessionStore sessionStore
     )
     {
-        var user = await repo.FindByEmail(request.Email).SingleOrDefaultAsync(ct);
+        var user = await repo.FindByEmail(request.Email).SingleOrDefaultAsync();
 
         if (user == null || !hashProvider.Verify(request.Password, user.Password))
         {
@@ -61,7 +60,7 @@ public class Login : BaseEndpoint
             DateTime.UtcNow
         );
 
-        var sessionId = await sessionStore.CreateSessionAsync(session, ct);
+        var sessionId = await sessionStore.CreateSessionAsync(session);
 
         return TypedResults.Ok(new LoginResponse(sessionId));
     }

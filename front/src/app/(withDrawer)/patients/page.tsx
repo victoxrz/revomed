@@ -3,21 +3,22 @@ import ConfirmModal from "../../../components/ConfirmModal";
 import { PiWarningBold } from "react-icons/pi";
 import ErrorMessage from "@/components/ErrorMessage";
 import RequireRoles from "@/components/RequireRoles";
-import { patient } from "@/lib/actions";
+import { Patient } from "@/lib/actions";
 import FormLabel from "@/components/FormLabel";
 import { IoSearch } from "react-icons/io5";
+import { ROUTES_ROLES } from "@/lib/dal/types";
 
 export default async function Page({
   searchParams,
 }: {
   searchParams: Promise<{ page?: string }>;
 }) {
-  await RequireRoles(["Medic"]);
+  await RequireRoles(ROUTES_ROLES.PATIENTS.LIST);
 
   const { page } = await searchParams;
   const currentPage = page ? parseInt(page) : 1;
 
-  const response = await patient.getAll(currentPage, 50);
+  const response = await Patient.getAll(currentPage, 50);
   const patients = response.patients;
   const lastPage = Math.ceil(response.totalCount / 50);
   if (patients.length === 0) return <ErrorMessage />;
@@ -56,7 +57,7 @@ export default async function Page({
                   More
                 </Link>
                 <ConfirmModal
-                  mutateAction={patient.remove}
+                  mutateAction={Patient.remove}
                   id={p.id}
                   openButton="Delete"
                   closeButton="Close"

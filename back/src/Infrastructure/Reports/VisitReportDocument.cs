@@ -30,7 +30,7 @@ public sealed class VisitReportDocument : IDocument
 
     public record VisitData(
         List<List<string>> Titles,
-        SortedDictionary<string, string> Fields,
+        Dictionary<string, string> Fields,
         DateTime CreatedAt,
         MedicData Medic,
         PatientData Patient,
@@ -131,11 +131,7 @@ public sealed class VisitReportDocument : IDocument
         });
     }
 
-    void ComposeTemplate(
-        IContainer container,
-        List<List<string>> titles,
-        SortedDictionary<string, string> fields
-    )
+    void ComposeTemplate(IContainer container, List<List<string>> titles, Dictionary<string, string> fields)
     {
         container.Column(column =>
         {

@@ -1,19 +1,108 @@
 "use client";
-import Link from "next/link";
+import Link, { LinkProps } from "next/link";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { IoLogOutOutline } from "react-icons/io5";
 import { TiUser } from "react-icons/ti";
 import { PiSidebarSimple } from "react-icons/pi";
+import { RouteType } from "next/dist/lib/load-custom-routes";
+import { UserRole } from "@/app/(withDrawer)/users/types";
+import { ROUTES_ROLES } from "@/lib/dal/types";
 
-// TODO: find out if its still important to close the navbar, if not clean up, also the layout don't forget
-export default function NavBar({ children }: { children: React.ReactNode }) {
+const SIDEBAR_STORAGE_KEY = "sidebarOpen";
+
+interface MenuLink {
+  href: LinkProps<RouteType>["href"];
+  label: string;
+  allowedRoles: UserRole[];
+}
+
+interface MenuItem {
+  label: string;
+  links: MenuLink[];
+}
+
+// TODO: it drives me crazy the sidebar opening when refreshing the page
+export default function NavBar({
+  children,
+  userRole,
+}: {
+  children: React.ReactNode;
+  userRole: UserRole;
+}) {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
 
+  const menu: MenuItem[] = [
+    {
+      label: "Patients",
+      links: [
+        {
+          href: "/patients",
+          label: "Patient list",
+          allowedRoles: ROUTES_ROLES.PATIENTS.LIST,
+        },
+        {
+          href: "/patients/create",
+          label: "Add pacient",
+          allowedRoles: ROUTES_ROLES.PATIENTS.CREATE,
+        },
+      ],
+    },
+    {
+      label: "Users",
+      links: [
+        {
+          href: "/users",
+          label: "User list",
+          allowedRoles: ROUTES_ROLES.USERS.LIST,
+        },
+      ],
+    },
+    {
+      label: "Visit Templates",
+      links: [
+        {
+          href: "/templates",
+          label: "Template list",
+          allowedRoles: ROUTES_ROLES.TEMPLATES.LIST,
+        },
+        {
+          href: "/templates/create",
+          label: "Create template",
+          allowedRoles: ROUTES_ROLES.TEMPLATES.CREATE,
+        },
+      ],
+    },
+    {
+      label: "Your information",
+      links: [
+        {
+          href: "/visits/me",
+          label: "Your visits",
+          allowedRoles: ROUTES_ROLES.VISITS.ME,
+        },
+      ],
+    },
+  ];
+
   useEffect(() => {
-    setIsOpen(typeof window !== "undefined" && window.innerWidth >= 1024);
-  }, []);
+    const storedIsOpen = localStorage.getItem(SIDEBAR_STORAGE_KEY);
+    // if null, default to open
+    setIsOpen((storedIsOpen ?? "true") === "true");
+
+    // Open details if it contains active link
+    document.querySelectorAll("details").forEach((details) => {
+      if (details.querySelector(".menu-active")) {
+        details.open = true;
+      }
+    });
+  }, [pathname]);
+
+  const toogleSidebar = (newValue: boolean) => {
+    setIsOpen(newValue);
+    localStorage.setItem(SIDEBAR_STORAGE_KEY, String(newValue));
+  };
 
   return (
     <div className="bg-base-200 flex">
@@ -21,7 +110,7 @@ export default function NavBar({ children }: { children: React.ReactNode }) {
         className={`z-10 max-lg:visible invisible fixed inset-0 bg-black/30 transition-opacity duration-300 ${
           isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
-        onClick={() => setIsOpen(false)}
+        onClick={() => toogleSidebar(false)}
       ></div>
       <div
         className={`z-10 flex flex-col fixed h-screen w-48 pr-2 transform ${
@@ -34,44 +123,35 @@ export default function NavBar({ children }: { children: React.ReactNode }) {
               Revomed
             </Link>
           </li>
-          <li>
-            <details open>
-              <summary>Patient</summary>
-              <ul>
-                <li>
-                  <Link
-                    href="/patients"
-                    className={pathname === "/patients" ? "menu-active" : ""}
-                  >
-                    Patient list
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/patients/create"
-                    className={
-                      pathname === "/patients/create" ? "menu-active" : ""
-                    }
-                  >
-                    Add pacient
-                  </Link>
-                </li>
-              </ul>
-            </details>
-          </li>
-          <li>
-            <details>
-              <summary>Medic</summary>
-              <ul>
-                <li>
-                  <a>Medic list</a>
-                </li>
-                <li>
-                  <a>Add medic</a>
-                </li>
-              </ul>
-            </details>
-          </li>
+          {menu
+            .filter((menuItem) =>
+              menuItem.links.some((link) =>
+                link.allowedRoles.includes(userRole),
+              ),
+            )
+            .map((menuItem) => (
+              <li key={menuItem.label}>
+                <details>
+                  <summary>{menuItem.label}</summary>
+                  <ul>
+                    {menuItem.links
+                      .filter((link) => link.allowedRoles.includes(userRole))
+                      .map((link, index) => (
+                        <li key={index}>
+                          <Link
+                            href={link.href}
+                            className={
+                              pathname === link.href ? "menu-active" : ""
+                            }
+                          >
+                            {link.label}
+                          </Link>
+                        </li>
+                      ))}
+                  </ul>
+                </details>
+              </li>
+            ))}
         </ul>
         <ul className="menu w-full font-semibold">
           <li>
@@ -100,7 +180,7 @@ export default function NavBar({ children }: { children: React.ReactNode }) {
       >
         <div className="pl-6 pt-2">
           <button
-            onClick={() => setIsOpen(!isOpen)}
+            onClick={() => toogleSidebar(!isOpen)}
             className="btn btn-sm btn-square btn-ghost"
           >
             <PiSidebarSimple size={19} />

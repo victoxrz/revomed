@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PublicApi.Endpoints.Addons;
 
-namespace PublicApi.Endpoints.Users;
+namespace PublicApi.Endpoints.Accounts;
 
 public class Signup : BaseEndpoint
 {
@@ -36,13 +36,12 @@ public class Signup : BaseEndpoint
         [FromForm] SignupRequest request,
         IUserRepository repo,
         ISessionStore sessionStore,
-        HttpContext httpContext,
-        CancellationToken ct
+        HttpContext httpContext
     )
     {
         if (await repo.SignupAsync(request.Email, request.Password))
         {
-            var user = await repo.FindByEmail(request.Email).SingleOrDefaultAsync(ct);
+            var user = await repo.FindByEmail(request.Email).SingleOrDefaultAsync();
 
             if (user == null)
             {
@@ -63,7 +62,7 @@ public class Signup : BaseEndpoint
                 DateTime.UtcNow
             );
 
-            var sessionId = await sessionStore.CreateSessionAsync(session, ct);
+            var sessionId = await sessionStore.CreateSessionAsync(session);
 
             return TypedResults.Ok(new SignupResponse(sessionId));
         }

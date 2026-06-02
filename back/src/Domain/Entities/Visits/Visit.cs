@@ -12,23 +12,8 @@ public class Visit : BaseEntity
     public int PatientId { get; set; }
     public Patient Patient { get; set; } = null!;
 
-    /*
-     * TODO: why i even use sortedDictionary
-     *
-     *
-     *  public class Entry {
-        public int Outer { get; set; }
-        public int Inner { get; set; }
-        public string Value { get; set; }
-        }
-        public class GridContainer {
-            public List<Entry> Entries { get; set; } = new();
-        }
-     *
-     */
-
     [Column(TypeName = "jsonb")]
-    public SortedDictionary<string, string> Fields { get; set; } = [];
+    public Dictionary<string, string> Fields { get; set; } = [];
 
     public int TemplateId { get; set; }
     public VisitTemplate Template { get; set; } = null!;

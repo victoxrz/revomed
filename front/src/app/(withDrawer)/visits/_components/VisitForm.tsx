@@ -8,7 +8,7 @@ import TriageView from "../../patients/_components/triages/TriageView";
 import { useQuery } from "@tanstack/react-query";
 import { getById } from "@/lib/actions/visitTemplate.actions";
 import { VisitTemplate } from "@/app/(withDrawer)/templates/types";
-import { visit } from "@/lib/actions";
+import { Visit } from "@/lib/actions";
 import { usePatientTabsContext } from "../../patients/_components/PatientTabsProvider";
 import Link from "next/link";
 import { IoArrowBack } from "react-icons/io5";
@@ -63,7 +63,7 @@ export default function VisitForm({ className }: { className?: string }) {
 
 function CreateVisitForm() {
   const ctx = usePatientTabsContext();
-  const [state, action] = useActionState(visit.create, {
+  const [state, action] = useActionState(Visit.create, {
     inputs: null,
     message: "",
   });

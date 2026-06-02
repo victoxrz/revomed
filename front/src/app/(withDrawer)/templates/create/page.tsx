@@ -1,13 +1,17 @@
-import { visitTemplate } from "@/lib/actions";
+import { VisitTemplate } from "@/lib/actions";
 import VisitTemplateForm from "../_components/VisitTemplateForm";
+import RequireRoles from "@/components/RequireRoles";
+import { ROUTES_ROLES } from "@/lib/dal/types";
 
 export default async function CreateVisitTemplatePage() {
+  await RequireRoles(ROUTES_ROLES.TEMPLATES.CREATE);
+
   return (
-    <div className="bg-base-100 rounded-field">
+    <div>
       <h1 className="text-2xl font-bold mb-2 pl-6 pt-6 text-center">
         Add a new visit template
       </h1>
-      <VisitTemplateForm mutateAction={visitTemplate.create} template={null} />
+      <VisitTemplateForm mutateAction={VisitTemplate.create} template={null} />
     </div>
   );
 }

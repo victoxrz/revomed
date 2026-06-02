@@ -1,5 +1,5 @@
 "use server";
-import { FormState } from "@/lib/definitions";
+import { FormState, GENERIC_ERROR_MESSAGE } from "@/lib/definitions";
 import z from "zod/v4";
 import {
   Visit,
@@ -8,11 +8,12 @@ import {
 } from "../../app/(withDrawer)/patients/_components/visits/types";
 import { VisitItem } from "../../app/(withDrawer)/patients/_components/visits/VisitList";
 import { revalidateTag } from "next/cache";
-import { fetchClient } from "@/lib/actions";
+import axiosInstance from "@/lib/axiosConfig";
+import { APIError } from "@/lib/errors";
 
 export async function create(
   _state: FormState<VisitErrors, Visit>,
-  formData: FormData
+  formData: FormData,
 ): Promise<FormState<VisitErrors, Visit>> {
   let fieldsData: Record<string, string> = {};
   const prefix = "fields-";
@@ -35,39 +36,35 @@ export async function create(
     };
   }
 
-  const response = await fetchClient.post(
-    "/visits/create",
-    validatedFields.data,
-    {
-      withAuth: true,
-    }
-  );
+  try {
+    await axiosInstance.post("/visits/create", validatedFields.data);
 
-  if (response.message) {
+    revalidateTag(`/visits/get?patientId=${validatedFields.data.patientId}`);
+    return {
+      inputs: null,
+      message: "Visit created successfully.",
+      isSuccessful: true,
+    };
+  } catch (error) {
     return {
       inputs: data,
-      message: response.message,
+      message:
+        error instanceof APIError ? error.message : GENERIC_ERROR_MESSAGE,
     };
   }
-
-  revalidateTag(`/visits/get?patientId=${validatedFields.data.patientId}`);
-  return {
-    inputs: null,
-    message: "Visit created successfully.",
-    isSuccessful: true,
-  };
 }
 
 export async function getByPatientId(patientId: number) {
-  const response = await fetchClient.get<VisitItem[]>(
+  const response = await axiosInstance.get<VisitItem[]>(
     `/visits/get?patientId=${patientId}`,
     {
-      withAuth: true,
-      next: {
-        tags: [`/visits/get?patientId=${patientId}`],
+      fetchOptions: {
+        next: {
+          tags: [`/visits/get?patientId=${patientId}`],
+        },
+        cache: "force-cache",
       },
-      // cache: "force-cache",
-    }
+    },
   );
 
   return response.data;
@@ -76,20 +73,21 @@ export async function getByPatientId(patientId: number) {
 export async function getSuggestion(
   query: string,
   templateId: number,
-  titlePath: string
+  titlePath: string,
   // TODO: find alternatives and usecases
   // signal: AbortSignal
 ) {
-  const response = await fetchClient.get<string[]>(
+  const response = await axiosInstance.get<string[]>(
     `/suggestions/${templateId}/${titlePath}/search?q=${query}`,
     {
-      withAuth: true,
-      next: {
-        tags: [`/suggestions/${templateId}/${titlePath}/search?q=${query}`],
+      fetchOptions: {
+        next: {
+          tags: [`/suggestions/${templateId}/${titlePath}/search?q=${query}`],
+        },
+        cache: "force-cache",
+        // signal,
       },
-      cache: "force-cache",
-      // signal: signal,
-    }
+    },
   );
 
   return response.data;

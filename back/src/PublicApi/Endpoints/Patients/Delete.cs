@@ -11,6 +11,7 @@ namespace PublicApi.Endpoints.Patients
             return app.MapDelete(Tag.ToLower() + "/delete/{id}", HandleAsync)
                 .DisableAntiforgery()
                 .RequireAuthorization()
+                .RequireRoles(Domain.Enums.UserRole.Admin)
                 .WithTags(Tag);
         }
 

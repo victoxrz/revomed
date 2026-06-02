@@ -2,12 +2,10 @@ using AppCore.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
 using PublicApi.Endpoints.Addons;
 
-namespace PublicApi.Endpoints.Users;
+namespace PublicApi.Endpoints.Accounts;
 
 public class Logout : BaseEndpoint
 {
-    public record LogoutResponse(string Message);
-
     public override RouteHandlerBuilder Configure(IEndpointRouteBuilder app)
     {
         return app.MapPost(Tag.ToLower() + "/logout", HandleAsync).RequireAuthorization().WithTags(Tag);
@@ -15,26 +13,21 @@ public class Logout : BaseEndpoint
 
     private async Task<IResult> HandleAsync(
         [FromHeader(Name = "Authorization")] string authorization,
-        ISessionStore sessionStore,
-        CancellationToken ct = default
+        ISessionStore sessionStore
     )
     {
         // Extract session ID from Authorization header
         var sessionId = authorization?.Trim() ?? "";
 
         if (string.IsNullOrWhiteSpace(sessionId))
-        {
-            return TypedResults.BadRequest(new { Message = "Invalid session ID" });
-        }
+            return TypedResults.BadRequest(new ErrorResponse("Invalid session ID"));
 
         // Delete session from Redis
-        var deleted = await sessionStore.DeleteSessionAsync(sessionId, ct);
+        var deleted = await sessionStore.DeleteSessionAsync(sessionId);
 
         if (!deleted)
-        {
-            return TypedResults.NotFound(new { Message = "Session not found" });
-        }
+            return TypedResults.NotFound(new ErrorResponse("Session not found"));
 
-        return TypedResults.Ok(new LogoutResponse("Logged out successfully"));
+        return TypedResults.Ok();
     }
 }

@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { visit } from "@/lib/actions";
+import { Visit } from "@/lib/actions";
 
 interface AutocompleteTextareaProps {
   name: string;
@@ -42,14 +42,14 @@ export default function AutocompleteTextarea({
   const { data: suggestions = [], isLoading } = useQuery({
     queryKey: ["suggestions", debouncedWord, templateId, fieldKey],
     queryFn: async () =>
-      (await visit.getSuggestion(debouncedWord, templateId, fieldKey)) ?? [],
+      (await Visit.getSuggestion(debouncedWord, templateId, fieldKey)) ?? [],
     enabled: debouncedWord.length >= minChars,
   });
 
   // Show suggestions when we have data
   useEffect(() => {
     setShowSuggestions(
-      debouncedWord.length >= minChars && suggestions.length > 0
+      debouncedWord.length >= minChars && suggestions.length > 0,
     );
     setHighlightedIndex(0);
   }, [suggestions, debouncedWord, minChars]);
@@ -85,13 +85,13 @@ export default function AutocompleteTextarea({
       case "ArrowDown":
         e.preventDefault();
         setHighlightedIndex((prev) =>
-          prev < suggestions.length - 1 ? prev + 1 : 0
+          prev < suggestions.length - 1 ? prev + 1 : 0,
         );
         break;
       case "ArrowUp":
         e.preventDefault();
         setHighlightedIndex((prev) =>
-          prev > 0 ? prev - 1 : suggestions.length - 1
+          prev > 0 ? prev - 1 : suggestions.length - 1,
         );
         break;
       case "Enter":

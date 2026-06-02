@@ -23,11 +23,15 @@ public class GetByPatientId : BaseEndpoint
     {
         return app.MapGet(Tag.ToLower() + "/get", HandleAsync)
             .RequireAuthorization()
-            .RequireRoles(Domain.Enums.UserRole.Medic)
+            .RequireRoles(Domain.Enums.UserRole.Medic, Domain.Enums.UserRole.Assistant)
             .WithTags(Tag);
     }
 
-    private async Task<IResult> HandleAsync([FromQuery] int patientId, ITriageRepository repo, CancellationToken ct)
+    private async Task<IResult> HandleAsync(
+        [FromQuery] int patientId,
+        ITriageRepository repo,
+        CancellationToken ct
+    )
     {
         var response = await repo.GetByPatientId(patientId, ct);
         if (response == null)

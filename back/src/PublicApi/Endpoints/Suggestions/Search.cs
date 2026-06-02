@@ -1,4 +1,5 @@
 ﻿using AppCore.Interfaces.Repository;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using PublicApi.Endpoints.Addons;
 
@@ -8,10 +9,13 @@ public class Search : BaseEndpoint
 {
     public override RouteHandlerBuilder Configure(IEndpointRouteBuilder app)
     {
-        return app.MapGet(Tag.ToLower() + "/{templateId}/{titlePath}/search", HandleAsync).WithTags(Tag);
+        return app.MapGet(Tag.ToLower() + "/{templateId}/{titlePath}/search", HandleAsync)
+            .RequireAuthorization()
+            .RequireRoles(Domain.Enums.UserRole.Medic)
+            .WithTags(Tag);
     }
 
-    private IResult HandleAsync(
+    private Ok<IEnumerable<string>> HandleAsync(
         [FromRoute] int templateId,
         [FromRoute] string titlePath,
         [FromQuery] string q,
@@ -19,7 +23,8 @@ public class Search : BaseEndpoint
     )
     {
         // case insensitive search, remove diacritics, fuzzy, maybe run simmilarity when querying
-        var results = repo.SearchByValueAsync(q, templateId, titlePath);
+        var results = repo.SearchByValue(q, templateId, titlePath);
+
         return TypedResults.Ok(results);
     }
 }

@@ -1,36 +1,18 @@
 "use server";
-import { cookies } from "next/headers";
+import axiosInstance from "@/lib/axiosConfig";
 
 export async function reportVisit(id: number) {
-  const response = await fetch(
-    `${process.env.API_BASE_URL!}/reports/visits/${id}`,
-    {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${
-          (await cookies()).get(process.env.AUTH_TOKEN_NAME!)?.value
-        }`,
-      },
-    }
-  );
+  const response = await axiosInstance.get(`/reports/visits/${id}`, {
+    responseType: "blob",
+  });
 
-  return response.blob();
+  return response.data;
 }
 
 export async function reportMedical(patientId: number) {
-  const response = await fetch(
-    `${process.env.API_BASE_URL!}/reports/medical/${patientId}`,
-    {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${
-          (await cookies()).get(process.env.AUTH_TOKEN_NAME!)?.value
-        }`,
-      },
-    }
-  );
+  const response = await axiosInstance.get(`/reports/medical/${patientId}`, {
+    responseType: "blob",
+  });
 
-  return response.blob();
+  return response.data;
 }

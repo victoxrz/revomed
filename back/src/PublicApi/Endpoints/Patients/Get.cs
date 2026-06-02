@@ -12,6 +12,7 @@ public class Get : BaseEndpoint
         int Id,
         string LastName,
         string FirstName,
+        string Email,
         string Patronymic,
         DateOnly Birthday,
         Gender Gender,
@@ -22,17 +23,22 @@ public class Get : BaseEndpoint
         string Country,
         BloodType BloodType,
         string InsurancePolicy,
-        bool? IsInsured);
+        bool? IsInsured
+    );
 
     public override RouteHandlerBuilder Configure(IEndpointRouteBuilder app)
     {
         return app.MapGet(Tag.ToLower() + "/get/{id}", HandleAsync)
             .RequireAuthorization()
-            .RequireRoles(UserRole.Medic, UserRole.Admin)
+            .RequireRoles(UserRole.Medic, UserRole.Assistant)
             .WithTags(Tag);
     }
 
-    public async Task<IResult> HandleAsync([FromRoute] int id, IPatientRepository repo, CancellationToken ct = default)
+    public async Task<IResult> HandleAsync(
+        [FromRoute] int id,
+        IPatientRepository repo,
+        CancellationToken ct = default
+    )
     {
         var patient = await repo.GetByIdAsync(id, ct);
         if (patient == null)

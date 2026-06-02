@@ -1,5 +1,5 @@
 "use server";
-import { FormState } from "@/lib/definitions";
+import { FormState, GENERIC_ERROR_MESSAGE } from "@/lib/definitions";
 import {
   patientErrors,
   PatientSchema,
@@ -9,7 +9,8 @@ import {
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import z from "zod/v4";
-import { fetchClient } from "@/lib/actions";
+import axiosInstance from "@/lib/axiosConfig";
+import { APIError } from "@/lib/errors";
 
 // https://sqids.org/
 export async function create(
@@ -29,19 +30,15 @@ export async function create(
     };
   }
 
-  const response = await fetchClient.post(
-    "/patients/create",
-    validatedFields.data,
-    {
-      withAuth: true,
-    },
-  );
-
-  if (response.message)
+  try {
+    await axiosInstance.post("/patients/create", validatedFields.data);
+  } catch (error) {
     return {
       inputs: validatedFields.data,
-      message: response.message,
+      message:
+        error instanceof APIError ? error.message : GENERIC_ERROR_MESSAGE,
     };
+  }
 
   redirect("/patients");
 }
@@ -63,19 +60,15 @@ export async function update(
     };
   }
 
-  const response = await fetchClient.put(
-    `/patients/update/${formData.get("id")}`,
-    data,
-    {
-      withAuth: true,
-    },
-  );
-
-  if (response.message)
+  try {
+    await axiosInstance.put(`/patients/update/${formData.get("id")}`, data);
+  } catch (error) {
     return {
       inputs: validatedFields.data,
-      message: response.message,
+      message:
+        error instanceof APIError ? error.message : GENERIC_ERROR_MESSAGE,
     };
+  }
 
   revalidatePath("/patients");
   redirect("/patients");
@@ -86,23 +79,21 @@ export async function remove(
   _state: { message: string } | undefined,
   formData: FormData,
 ): Promise<{ message: string }> {
-  const response = await fetchClient.remove(
-    `/patients/delete/${formData.get("id")}`,
-    {
-      withAuth: true,
-    },
-  );
-
-  if (response.message)
+  try {
+    await axiosInstance.delete(`/patients/delete/${formData.get("id")}`);
+  } catch (error) {
     return {
-      message: response.message,
+      message:
+        error instanceof APIError ? error.message : GENERIC_ERROR_MESSAGE,
     };
+  }
+
   revalidatePath("/patients");
   redirect("/patients");
 }
 
 export async function getAll(page: number, pageSize: number) {
-  const response = await fetchClient.get<{
+  const response = await axiosInstance.get<{
     patients: PatientModel[];
     totalCount: number;
   }>(
@@ -111,19 +102,14 @@ export async function getAll(page: number, pageSize: number) {
         page: String(page),
         pageSize: String(pageSize),
       }),
-    {
-      withAuth: true,
-    },
   );
 
   return response.data ?? { patients: [], totalCount: 0 };
 }
 
 export async function getById(id: number) {
-  const response = await fetchClient.get<Patient>(`/patients/get/${id}`, {
-    withAuth: true,
-    cache: "force-cache",
-    next: { revalidate: 3600 },
+  const response = await axiosInstance.get<Patient>(`/patients/get/${id}`, {
+    fetchOptions: { next: { revalidate: 3600 }, cache: "force-cache" },
   });
 
   return response.data;

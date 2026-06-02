@@ -11,3 +11,5 @@ export type FormState<TErrors, TInputs> =
       // maybe make it mandatory
       isSuccessful?: true;
     };
+
+export const GENERIC_ERROR_MESSAGE = "An error occurred. Please try again.";
