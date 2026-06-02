@@ -1,9 +1,9 @@
 "use server";
-import { fetchClient } from "@/lib/actions";
+import { FetchClient } from "@/lib/actions";
 import { Profile } from "./types";
 
 export async function ProfileGet() {
-  const response = await fetchClient.get<Profile>("/users/profile", {
+  const response = await FetchClient.get<Profile>("/users/profile", {
     withAuth: true,
   });
 

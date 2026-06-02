@@ -5,9 +5,10 @@ import ErrorMessage from "@/components/ErrorMessage";
 import { Patient } from "../../patients/types";
 import FormLabel from "@/components/FormLabel";
 import { IoSearch } from "react-icons/io5";
+import { ROUTES_ROLES } from "@/lib/dal/types";
 
 export default async function VisitsHistoryPage() {
-  await RequireRoles(["Patient"]);
+  await RequireRoles(ROUTES_ROLES.VISITS.ME);
 
   const patient = await ProfileGet();
   if (patient?.userRole !== "Patient") return <ErrorMessage />;

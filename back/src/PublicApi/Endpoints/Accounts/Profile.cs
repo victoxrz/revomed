@@ -6,7 +6,7 @@ using Mapster;
 using Microsoft.EntityFrameworkCore;
 using PublicApi.Endpoints.Addons;
 
-namespace PublicApi.Endpoints.Users;
+namespace PublicApi.Endpoints.Accounts;
 
 public class Profile : BaseEndpoint
 {
@@ -39,6 +39,8 @@ public class Profile : BaseEndpoint
         public bool? IsInsured { get; init; }
     };
 
+    // TODO: use the fact that ef core uses polymorphism so the user gets casted to the actual type
+    // so i should use mapster just to ignore some properties
     public override RouteHandlerBuilder Configure(IEndpointRouteBuilder app)
     {
         return app.MapGet(Tag.ToLower() + "/profile", HandleAsync).RequireAuthorization().WithTags(Tag);

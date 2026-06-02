@@ -23,7 +23,7 @@ public class List : BaseEndpoint
     {
         return app.MapGet(Tag.ToLower() + "/list", HandleAsync)
             .RequireAuthorization()
-            .RequireRoles(UserRole.Medic)
+            .RequireRoles(UserRole.Medic, UserRole.Admin)
             .WithTags(Tag);
     }
 

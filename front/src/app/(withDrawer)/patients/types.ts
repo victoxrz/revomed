@@ -1,5 +1,5 @@
-import { Role } from "@/lib/requireRoles";
 import z from "zod/v4";
+import { UserRole } from "../users/types";
 
 export interface PatientModel {
   id: number;
@@ -58,7 +58,7 @@ export const PatientSchema = z
   });
 export type Patient = z.infer<typeof PatientSchema> & {
   isInsured?: boolean | null;
-  userRole: Role;
+  // userRole: UserRole;
 };
 export type PatientProfile = Omit<Patient, "id">;
 

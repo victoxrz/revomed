@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using PublicApi.Endpoints.Addons;
 using StackExchange.Redis;
 
-namespace PublicApi.Endpoints.Users;
+namespace PublicApi.Endpoints.Accounts;
 
 public class GoogleAuth : BaseEndpoint
 {
@@ -44,7 +44,7 @@ public class GoogleAuth : BaseEndpoint
                 return TypedResults.BadRequest(new ErrorResponse("Email not verified"));
 
             // 3. Find User
-            var user = await repo.FindByEmail(payload.Email).SingleOrDefaultAsync();
+            var user = await repo.FindByEmail(payload.Email).SingleOrDefaultAsync(ct);
             if (user == null)
                 return TypedResults.BadRequest(new ErrorResponse("User not found. Please sign up first."));
 

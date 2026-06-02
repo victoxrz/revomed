@@ -1,17 +1,90 @@
 "use client";
-import Link from "next/link";
+import Link, { LinkProps } from "next/link";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { IoLogOutOutline } from "react-icons/io5";
 import { TiUser } from "react-icons/ti";
 import { PiSidebarSimple } from "react-icons/pi";
+import { RouteType } from "next/dist/lib/load-custom-routes";
+import { UserRole } from "@/app/(withDrawer)/users/types";
+import { ROUTES_ROLES } from "@/lib/dal/types";
 
 const SIDEBAR_STORAGE_KEY = "sidebarOpen";
 
+interface MenuLink {
+  href: LinkProps<RouteType>["href"];
+  label: string;
+  allowedRoles: UserRole[];
+}
+
+interface MenuItem {
+  label: string;
+  links: MenuLink[];
+}
+
 // TODO: it drives me crazy the sidebar opening when refreshing the page
-export default function NavBar({ children }: { children: React.ReactNode }) {
+export default function NavBar({
+  children,
+  userRole,
+}: {
+  children: React.ReactNode;
+  userRole: UserRole;
+}) {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
+
+  const menu: MenuItem[] = [
+    {
+      label: "Patients",
+      links: [
+        {
+          href: "/patients",
+          label: "Patient list",
+          allowedRoles: ROUTES_ROLES.PATIENTS.LIST,
+        },
+        {
+          href: "/patients/create",
+          label: "Add pacient",
+          allowedRoles: ROUTES_ROLES.PATIENTS.CREATE,
+        },
+      ],
+    },
+    {
+      label: "Users",
+      links: [
+        {
+          href: "/users",
+          label: "User list",
+          allowedRoles: ROUTES_ROLES.USERS.LIST,
+        },
+      ],
+    },
+    {
+      label: "Visit Templates",
+      links: [
+        {
+          href: "/templates",
+          label: "Template list",
+          allowedRoles: ROUTES_ROLES.TEMPLATES.LIST,
+        },
+        {
+          href: "/templates/create",
+          label: "Create template",
+          allowedRoles: ROUTES_ROLES.TEMPLATES.CREATE,
+        },
+      ],
+    },
+    {
+      label: "Your information",
+      links: [
+        {
+          href: "/visits/me",
+          label: "Your visits",
+          allowedRoles: ROUTES_ROLES.VISITS.ME,
+        },
+      ],
+    },
+  ];
 
   useEffect(() => {
     const storedIsOpen = localStorage.getItem(SIDEBAR_STORAGE_KEY);
@@ -50,59 +123,35 @@ export default function NavBar({ children }: { children: React.ReactNode }) {
               Revomed
             </Link>
           </li>
-          <li>
-            <details>
-              <summary>Patient</summary>
-              <ul>
-                <li>
-                  <Link
-                    href="/patients"
-                    className={pathname === "/patients" ? "menu-active" : ""}
-                  >
-                    Patient list
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/patients/create"
-                    className={
-                      pathname === "/patients/create" ? "menu-active" : ""
-                    }
-                  >
-                    Add pacient
-                  </Link>
-                </li>
-              </ul>
-            </details>
-          </li>
-          <li>
-            <details>
-              <summary>Medic</summary>
-              <ul>
-                <li>
-                  <a>Medic list</a>
-                </li>
-                <li>
-                  <a>Add medic</a>
-                </li>
-              </ul>
-            </details>
-          </li>
-          <li>
-            <details>
-              <summary>Your information</summary>
-              <ul>
-                <li>
-                  <Link
-                    href={"/visits/me"}
-                    className={pathname === "/visits/me" ? "menu-active" : ""}
-                  >
-                    Your visits
-                  </Link>
-                </li>
-              </ul>
-            </details>
-          </li>
+          {menu
+            .filter((menuItem) =>
+              menuItem.links.some((link) =>
+                link.allowedRoles.includes(userRole),
+              ),
+            )
+            .map((menuItem) => (
+              <li key={menuItem.label}>
+                <details>
+                  <summary>{menuItem.label}</summary>
+                  <ul>
+                    {menuItem.links
+                      .filter((link) => link.allowedRoles.includes(userRole))
+                      .map((link, index) => (
+                        <li key={index}>
+                          <Link
+                            href={link.href}
+                            className={
+                              pathname === link.href ? "menu-active" : ""
+                            }
+                          >
+                            {link.label}
+                          </Link>
+                        </li>
+                      ))}
+                  </ul>
+                </details>
+              </li>
+            ))}
         </ul>
         <ul className="menu w-full font-semibold">
           <li>

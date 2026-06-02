@@ -1,33 +1,20 @@
 "use client";
-import { createContext, useContext } from "react";
 import { Patient } from "../types";
 import { Triage } from "./triages/types";
 import { VisitTemplate } from "../../templates/types";
+import { createTypedContext } from "@/components/ContextFactory";
 
-export type PatientTabsValue =
-  | {
-      patient: Patient;
-      template: VisitTemplate;
-      templateNames: { id: number; name: string }[];
-      triage: Triage | null;
-    }
-  | undefined;
+// Patient Tabs specific context
+export type PatientTabsValue = {
+  patient: Patient;
+  template: VisitTemplate;
+  templateNames: { id: number; name: string }[];
+  triage: Triage | null;
+};
 
-export const PatientTabsContext = createContext<PatientTabsValue>(undefined);
+const { Provider, useTypedContext, Context } =
+  createTypedContext<PatientTabsValue>();
 
-export function PatientTabsProvider({
-  children,
-  value,
-}: {
-  children: Readonly<React.ReactNode>;
-  value: PatientTabsValue;
-}) {
-  return <PatientTabsContext value={value}>{children}</PatientTabsContext>;
-}
-
-export function usePatientTabsContext() {
-  const ctx = useContext(PatientTabsContext);
-
-  if (!ctx) throw Error("Undefined context value. Use inside Context Provider");
-  return ctx;
-}
+export const PatientTabsProvider = Provider;
+export const usePatientTabsContext = useTypedContext;
+export const PatientTabsContext = Context;

@@ -1,5 +1,5 @@
 "use server";
-import { FormState } from "@/lib/definitions";
+import { FormState, GENERIC_ERROR_MESSAGE } from "@/lib/definitions";
 import {
   Triage,
   TriageErrors,
@@ -7,14 +7,15 @@ import {
 } from "../../app/(withDrawer)/patients/_components/triages/types";
 import { revalidateTag } from "next/cache";
 import z from "zod/v4";
-import { fetchClient } from "@/lib/actions";
+import axiosInstance from "@/lib/axiosConfig";
+import { APIError } from "@/lib/errors";
 
 export async function create(
   _state: FormState<TriageErrors, Triage>,
-  formData: FormData
+  formData: FormData,
 ): Promise<FormState<TriageErrors, Triage>> {
   const data: Triage = Object.fromEntries(
-    formData.entries()
+    formData.entries(),
   ) as unknown as Triage;
 
   const validatedFields = TriageSchema.safeParse(data);
@@ -26,39 +27,39 @@ export async function create(
     };
   }
 
-  const response = await fetchClient.post(
-    `/triages/create?patientId=${validatedFields.data.patientId}`,
-    validatedFields.data,
-    {
-      withAuth: true,
-    }
-  );
+  try {
+    await axiosInstance.post(
+      `/triages/create?patientId=${validatedFields.data.patientId}`,
+      validatedFields.data,
+    );
 
-  if (response.message)
+    revalidateTag(`/triages/get?patientId=${validatedFields.data.patientId}`);
+    return {
+      inputs: null,
+      message: "Triage created successfully.",
+      isSuccessful: true,
+    };
+  } catch (error) {
     return {
       inputs: validatedFields.data,
-      message: response.message,
+      message:
+        error instanceof APIError ? error.message : GENERIC_ERROR_MESSAGE,
     };
-
-  revalidateTag(`/triages/get?patientId=${validatedFields.data.patientId}`);
-  return {
-    inputs: null,
-    message: "Triage created successfully.",
-    isSuccessful: true,
-  };
+  }
 }
 
 export async function getByPatientId(patientId: number) {
-  const response = await fetchClient.get<Triage & { updatedAt: string }>(
+  const response = await axiosInstance.get<Triage & { updatedAt: string }>(
     `/triages/get?patientId=${patientId}`,
     {
-      withAuth: true,
-      // cache: "force-cache",
-      next: {
-        revalidate: 60 * 60,
-        tags: [`/triages/get?patientId=${patientId}`],
+      fetchOptions: {
+        cache: "force-cache",
+        next: {
+          revalidate: 60 * 60,
+          tags: [`/triages/get?patientId=${patientId}`],
+        },
       },
-    }
+    },
   );
 
   return response.data;

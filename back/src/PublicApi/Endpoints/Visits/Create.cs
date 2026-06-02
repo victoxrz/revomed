@@ -11,7 +11,7 @@ namespace PublicApi.Endpoints.Visits;
 
 public class Create : BaseEndpoint
 {
-    public record CreateRequest(int PatientId, int TemplateId, SortedDictionary<string, string> Fields);
+    public record CreateRequest(int PatientId, int TemplateId, Dictionary<string, string> Fields);
 
     public class CreateRequestValidator : AbstractValidator<CreateRequest>
     {
@@ -35,25 +35,23 @@ public class Create : BaseEndpoint
             .WithTags(Tag);
     }
 
-    // TODO: chaos in here, refactor this method
-    // TODO: write integration test for this function, check multiple combinations for Fields key
     public async Task<IResult> HandleAsync(
         [FromBody] CreateRequest request,
-        ClaimsPrincipal user,
+        ClaimsPrincipal claims,
         IVisitRepository visitRepo,
         IMedicRepository medicRepo
     )
     {
-        var email = user.FindFirstValue(ClaimTypes.Email);
+        var email = claims.FindFirstValue(ClaimTypes.Email);
         if (string.IsNullOrEmpty(email))
             return TypedResults.BadRequest(new ErrorResponse("Try to log in again"));
 
-        var medic = await medicRepo.FindByEmail(email).SingleOrDefaultAsync();
-        if (medic == null)
-            return TypedResults.Forbid();
+        var medicId = claims.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (!int.TryParse(medicId, out var medicIdInt))
+            return TypedResults.BadRequest(new ErrorResponse("Try to log in again"));
 
         var entity = request.Adapt<Visit>();
-        entity.MedicId = medic.Id;
+        entity.MedicId = medicIdInt;
 
         var response = await visitRepo.AddAsync(entity);
 

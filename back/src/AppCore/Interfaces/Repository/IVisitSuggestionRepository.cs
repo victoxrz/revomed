@@ -4,7 +4,7 @@ namespace AppCore.Interfaces.Repository;
 
 public interface IVisitSuggestionRepository
 {
-    IEnumerable<string> SearchByValueAsync(string value, int templateId, string titlePath, int limit = 10);
+    IEnumerable<string> SearchByValue(string value, int templateId, string titlePath, int limit = 10);
 
     Task<bool> AddAsync(VisitSuggestion entity);
 

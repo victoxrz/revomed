@@ -11,7 +11,7 @@ import {
 import { redirect } from "next/navigation";
 import z from "zod/v4";
 import { FormState } from "@/lib/definitions";
-import { fetchClient } from "@/lib/actions";
+import { FetchClient } from "@/lib/actions";
 
 export async function login(
   _state: FormState<loginErrors, Login>,
@@ -27,8 +27,8 @@ export async function login(
     };
   }
 
-  const response = await fetchClient.post<{ sessionId: string }>(
-    "/users/login",
+  const response = await FetchClient.post<{ sessionId: string }>(
+    "/accounts/login",
     new URLSearchParams(validatedFields.data),
     {
       headers: {
@@ -77,8 +77,8 @@ export async function signup(
 
   formData.delete("confirmPassword");
 
-  const response = await fetchClient.post<{ token: string }>(
-    "/users/signup",
+  const response = await FetchClient.post<{ token: string }>(
+    "/accounts/signup",
     new URLSearchParams(validatedFields.data),
     {
       headers: {

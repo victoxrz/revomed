@@ -10,9 +10,9 @@ namespace PublicApi.Endpoints.Users;
 
 public class Update : BaseEndpoint
 {
-    public record UpdateRequest(UserRole UserRole);
+    public record UpdateRequest(string Email, string FirstName, string LastName, UserRole UserRole);
 
-    private class UpdateRequestValidator : AbstractValidator<UpdateRequest>
+    public class UpdateRequestValidator : AbstractValidator<UpdateRequest>
     {
         public UpdateRequestValidator()
         {
@@ -27,7 +27,7 @@ public class Update : BaseEndpoint
         return app.MapPut(Tag.ToLower() + "/update/{id}", HandleAsync)
             .RequireAuthorization()
             .WithValidation<UpdateRequest>()
-            .RequireRoles(UserRole.Admin)
+            //.RequireRoles(UserRole.Admin)
             .WithTags(Tag);
     }
 
@@ -43,7 +43,8 @@ public class Update : BaseEndpoint
 
         var modified = request.UserRole switch
         {
-            UserRole.Patient => new User(),
+            UserRole.User | UserRole.Admin | UserRole.Assistant => new User(),
+            UserRole.Patient => new Patient(),
             UserRole.Medic => new Medic(),
             _ => null,
         };

@@ -2,7 +2,7 @@ import { getGoogleConfig } from "@/lib/googleOidc";
 import * as client from "openid-client";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
-import { fetchClient } from "@/lib/actions";
+import { FetchClient } from "@/lib/actions";
 
 export async function GET(req: NextRequest) {
   const config = await getGoogleConfig();
@@ -30,19 +30,19 @@ export async function GET(req: NextRequest) {
     const claims = tokens.claims();
 
     if (!claims || !tokens.id_token) {
-      return NextResponse.redirect(new URL(`/account/login`));
+      return NextResponse.redirect(new URL("/account/login", req.url));
     }
 
     // exchange id_token for our own session id
-    const response = await fetchClient.post<{ sessionId: string }>(
-      "/users/google-auth",
+    const response = await FetchClient.post<{ sessionId: string }>(
+      "/accounts/google-auth",
       {
         idToken: tokens.id_token,
       },
     );
 
     if (!response.data) {
-      return NextResponse.redirect(new URL(`/account/login`));
+      return NextResponse.redirect(new URL("/account/login", req.url));
     }
 
     cookieStore.set({

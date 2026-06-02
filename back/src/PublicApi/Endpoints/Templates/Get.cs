@@ -7,7 +7,6 @@ namespace PublicApi.Endpoints.Templates;
 
 public class Get : BaseEndpoint
 {
-    // maybe titles arent needed
     public record GetResponse(int Id, string Name, List<List<string>> Titles, bool RequireTriage);
 
     public override RouteHandlerBuilder Configure(IEndpointRouteBuilder app)
@@ -18,7 +17,11 @@ public class Get : BaseEndpoint
             .WithTags(Tag);
     }
 
-    private async Task<IResult> HandleAsync([FromRoute] int id, IVisitTemplateRepository repo, CancellationToken ct = default)
+    private async Task<IResult> HandleAsync(
+        [FromRoute] int id,
+        IVisitTemplateRepository repo,
+        CancellationToken ct = default
+    )
     {
         var template = await repo.GetByIdAsync(id, ct);
         if (template == null)

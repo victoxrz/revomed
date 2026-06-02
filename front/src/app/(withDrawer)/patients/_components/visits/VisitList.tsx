@@ -1,6 +1,6 @@
 "use client";
 import { useQuery } from "@tanstack/react-query";
-import { visit } from "@/lib/actions";
+import { Visit } from "@/lib/actions";
 import { Triage } from "../triages/types";
 import TriageView from "../triages/TriageView";
 import { IoPrintSharp } from "react-icons/io5";
@@ -40,7 +40,7 @@ export default function VisitListView({
 }) {
   const { data: visitList, isLoading } = useQuery<VisitItem[]>({
     queryKey: ["/visits/getByPatientId", patient.id],
-    queryFn: async () => (await visit.getByPatientId(patient.id)) ?? [],
+    queryFn: async () => (await Visit.getByPatientId(patient.id)) ?? [],
     refetchOnWindowFocus: false,
     staleTime: 0,
   });

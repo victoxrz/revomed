@@ -38,12 +38,16 @@ public class Create : BaseEndpoint
     {
         return app.MapPost(Tag.ToLower() + "/create", HandleAsync)
             .RequireAuthorization()
-            .RequireRoles(Domain.Enums.UserRole.Medic)
+            .RequireRoles(Domain.Enums.UserRole.Assistant, Domain.Enums.UserRole.Medic)
             .WithValidation<CreateRequest>()
             .WithTags(Tag);
     }
 
-    private async Task<IResult> HandleAsync([FromBody] CreateRequest request, [FromQuery] int patientId, ITriageRepository repo)
+    private async Task<IResult> HandleAsync(
+        [FromBody] CreateRequest request,
+        [FromQuery] int patientId,
+        ITriageRepository repo
+    )
     {
         var triage = request.Adapt<Domain.Entities.Visits.Triage>();
         triage.PatientId = patientId;

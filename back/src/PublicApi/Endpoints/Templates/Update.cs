@@ -23,11 +23,17 @@ public class Update : BaseEndpoint
     public override RouteHandlerBuilder Configure(IEndpointRouteBuilder app)
     {
         return app.MapPut(Tag.ToLower() + "/update/{id}", HandleAsync)
+            .RequireAuthorization()
+            .RequireRoles(Domain.Enums.UserRole.Admin)
             .WithValidation<UpdateRequest>()
             .WithTags(Tag);
     }
 
-    private async Task<IResult> HandleAsync([FromBody] UpdateRequest request, [FromRoute] int id, IVisitTemplateRepository repo)
+    private async Task<IResult> HandleAsync(
+        [FromBody] UpdateRequest request,
+        [FromRoute] int id,
+        IVisitTemplateRepository repo
+    )
     {
         var entity = request.Adapt<VisitTemplate>();
         entity.Id = id;

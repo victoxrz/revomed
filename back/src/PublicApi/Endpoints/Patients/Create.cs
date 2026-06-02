@@ -21,7 +21,8 @@ public class Create : BaseEndpoint
         string StreetAddress,
         string Country,
         string Phone,
-        string InsurancePolicy);
+        string InsurancePolicy
+    );
 
     public class CreateRequestValidator : AbstractValidator<CreateRequest>
     {
@@ -46,8 +47,8 @@ public class Create : BaseEndpoint
     {
         return app.MapPost(Tag.ToLower() + "/create", HandleAsync)
             .WithValidation<CreateRequest>()
-            .DisableAntiforgery()
             .RequireAuthorization()
+            .RequireRoles(Domain.Enums.UserRole.Medic, Domain.Enums.UserRole.Assistant)
             .WithTags(Tag);
     }
 

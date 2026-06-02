@@ -78,20 +78,6 @@ namespace PublicApi
                 options.AbortOnConnectFail = false;
                 return ConnectionMultiplexer.Connect(options);
             });
-            //builder.Services.AddStackExchangeRedisCache(options =>
-            //{
-            //    options.Configuration = builder.Configuration.GetConnectionString("Redis");
-            //    options.InstanceName = "RevomedSession:";
-            //    options.ConnectionMultiplexerFactory = async () =>
-            //    {
-            //        var options = ConfigurationOptions.Parse(
-            //            builder.Configuration.GetConnectionString("Redis")!,
-            //            true
-            //        );
-            //        options.AbortOnConnectFail = false;
-            //        return await ConnectionMultiplexer.ConnectAsync(options);
-            //    };
-            //});
 
             builder.Services.AddScoped<ISessionStore, RedisSessionStore>();
 

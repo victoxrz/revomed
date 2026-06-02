@@ -20,7 +20,8 @@ public class Update : BaseEndpoint
         string StreetAddress,
         string Country,
         string Phone,
-        string InsurancePolicy);
+        string InsurancePolicy
+    );
 
     public class UpdateRequestValidator : AbstractValidator<UpdateRequest>
     {
@@ -45,12 +46,16 @@ public class Update : BaseEndpoint
     {
         return app.MapPut(Tag.ToLower() + "/update/{id}", HandleAsync)
             .WithValidation<UpdateRequest>()
-            .DisableAntiforgery()
             .RequireAuthorization()
+            .RequireRoles(Domain.Enums.UserRole.Assistant)
             .WithTags(Tag);
     }
 
-    private async Task<IResult> HandleAsync([FromBody] UpdateRequest request, [FromRoute] int id, IPatientRepository repo)
+    private async Task<IResult> HandleAsync(
+        [FromBody] UpdateRequest request,
+        [FromRoute] int id,
+        IPatientRepository repo
+    )
     {
         var patient = await repo.GetByIdAsync(id);
         if (patient == null)

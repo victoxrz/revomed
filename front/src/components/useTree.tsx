@@ -22,7 +22,7 @@ export function useTree(initial: TitleItem[] | (() => TitleItem[]) = []) {
     (
       parentId: string | null,
       subtitles: TitleItem[] = tree,
-      prefixId = parentId
+      prefixId = parentId,
     ) => {
       if (!parentId) {
         const newItem: TitleItem = {
@@ -46,10 +46,10 @@ export function useTree(initial: TitleItem[] | (() => TitleItem[]) = []) {
       addItem(
         index === -1 ? null : parentId.substring(index + 1),
         subtitles[Number(parentId.split("-")[0])].subtitles,
-        prefixId
+        prefixId,
       );
     },
-    [tree]
+    [tree],
   );
 
   /**
@@ -60,7 +60,7 @@ export function useTree(initial: TitleItem[] | (() => TitleItem[]) = []) {
     (
       itemId: string,
       subtitles: TitleItem[] = tree,
-      initialId: string = itemId
+      initialId: string = itemId,
     ) => {
       const ids = itemId.split("-");
       if (ids.length === 1) {
@@ -76,10 +76,10 @@ export function useTree(initial: TitleItem[] | (() => TitleItem[]) = []) {
       removeItem(
         itemId.substring(index + 1),
         subtitles[Number(ids[0])].subtitles,
-        initialId
+        initialId,
       );
     },
-    [tree]
+    [tree],
   );
 
   return { tree, addItem, removeItem };
@@ -124,7 +124,7 @@ export function SectionView({
     // TODO: hard to read, modify some list view
     <details
       open={titleItem.subtitles && titleItem.subtitles.length > 0}
-      className="bg-base-200 rounded-box mb-4"
+      className="rounded-field mb-4 bg-base-100"
     >
       <summary className="flex">{content}</summary>
       <ul>

@@ -1,4 +1,4 @@
-import { Role } from "@/lib/requireRoles";
+import { Role } from "@/lib/dal/requireRoles";
 import { PatientProfile } from "../patients/types";
 
 export type UserProfile = {

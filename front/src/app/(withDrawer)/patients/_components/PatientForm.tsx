@@ -47,6 +47,16 @@ export function PatientFormFields({
           disabled={disabled}
         />
       </FormLabel>
+      <FormLabel label="Email" error={fieldErrors?.email}>
+        <input
+          name="email"
+          type="email"
+          className="input flex w-full"
+          defaultValue={patient?.email}
+          disabled={disabled}
+          required={!disabled}
+        />
+      </FormLabel>
       <FormLabel label="Birthday" error={fieldErrors?.birthday}>
         <input
           name="birthday"
@@ -206,7 +216,7 @@ export default function PatientForm({
     <form className={className} action={action}>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
         <input type="hidden" name="id" value={patient?.id} />
-        <PatientFormFields patient={patient} />
+        <PatientFormFields patient={patient} fieldErrors={fieldErrors} />
       </div>
 
       <button className="btn btn-primary" type="submit">

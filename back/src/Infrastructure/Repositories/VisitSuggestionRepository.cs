@@ -15,12 +15,7 @@ public class VisitSuggestionRepository : BaseRepository<VisitSuggestion>, IVisit
     // A far better solution would be to use an accent-insensitive column collation.
     // Applying functions to fields prevents the database from using indexes.
     // Unless you also create an index based on the function expression
-    public IEnumerable<string> SearchByValueAsync(
-        string value,
-        int templateId,
-        string titlePath,
-        int limit = 10
-    )
+    public IEnumerable<string> SearchByValue(string value, int templateId, string titlePath, int limit = 10)
     {
         value = value.Normalize(NormalizationForm.FormD);
 

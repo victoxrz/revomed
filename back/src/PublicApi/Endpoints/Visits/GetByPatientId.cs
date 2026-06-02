@@ -1,6 +1,7 @@
 ﻿using System.Security.Claims;
 using AppCore.Interfaces.Repository;
 using Domain.Entities.Visits;
+using Domain.Enums;
 using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -28,7 +29,7 @@ public class GetByPatientId : BaseEndpoint
         int Id,
         DateTime CreatedAt,
         List<List<string>> Titles,
-        SortedDictionary<string, string> Fields,
+        Dictionary<string, string> Fields,
         MedicData Medic,
         TriageData? Triage = null
     );
@@ -43,7 +44,7 @@ public class GetByPatientId : BaseEndpoint
 
         return app.MapGet(Tag.ToLower() + "/get", HandleAsync)
             .RequireAuthorization()
-            .RequireRoles(Domain.Enums.UserRole.Medic, Domain.Enums.UserRole.Patient)
+            .RequireRoles(UserRole.Medic, UserRole.Patient)
             .WithTags(Tag);
     }
 
@@ -62,14 +63,9 @@ public class GetByPatientId : BaseEndpoint
         ClaimsPrincipal claims
     )
     {
-        var email = claims.FindFirstValue(ClaimTypes.Email);
-        if (email is null) // i think it should throw, its an exception case
-            return TypedResults.Unauthorized();
-
-        var user = await userRepo.FindByEmail(email).FirstOrDefaultAsync();
-
-        if (user?.UserRole == Domain.Enums.UserRole.Patient && user.Id != patientId)
-            return TypedResults.Forbid();
+        var (_, error) = await claims.AuthorizeSelfAccessAsync(patientId, [UserRole.Patient]);
+        if (error is not null)
+            return error;
 
         var response = visitRepo.GetByPatientId(patientId);
         if (!response.Any())

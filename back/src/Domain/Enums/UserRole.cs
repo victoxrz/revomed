@@ -10,4 +10,5 @@ public enum UserRole : ushort
     Medic = 1,
     Admin = 2,
     User = 3,
+    Assistant = 4,
 }

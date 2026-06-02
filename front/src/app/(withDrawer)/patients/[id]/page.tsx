@@ -1,6 +1,5 @@
 import ErrorMessage from "@/components/ErrorMessage";
 import PatientTabs from "../_components/PatientTabs";
-import { PatientTabsProvider } from "../_components/PatientTabsProvider";
 import RequireRoles from "@/components/RequireRoles";
 import PatientOptions from "../_components/PatientOptions";
 import {
@@ -8,31 +7,33 @@ import {
   HydrationBoundary,
   QueryClient,
 } from "@tanstack/react-query";
-import { patient, visitTemplate } from "@/lib/actions";
-import { triage } from "@/lib/actions";
+import { Patient, VisitTemplate } from "@/lib/actions";
+import { Triage } from "@/lib/actions";
 import Link from "next/link";
+import { PatientTabsProvider } from "../_components/PatientTabsProvider";
+import { ROUTES_ROLES } from "@/lib/dal/types";
 
 export default async function PatientOptionsPage({
   params,
 }: {
   params: Promise<{ id: number }>;
 }) {
-  await RequireRoles(["Medic"]);
+  await RequireRoles(ROUTES_ROLES.PATIENTS.GET);
 
   const patientId = (await params).id;
-  const patientData = await patient.getById(patientId);
+  const patientData = await Patient.getById(patientId);
   if (!patientData) return <ErrorMessage />;
 
-  const templateNames = await visitTemplate.getAll();
+  const templateNames = (await VisitTemplate.getAll(1, 50)).templates;
   if (!templateNames) return <ErrorMessage />;
 
-  const template = await visitTemplate.getById(templateNames[0].id);
+  const template = await VisitTemplate.getById(templateNames[0].id);
   if (!template) return <ErrorMessage />;
 
   const queryClient = new QueryClient();
   queryClient.setQueryData(["visitTemplateGet", template.id], template);
 
-  const triageData = await triage.getByPatientId(patientId);
+  const triageData = await Triage.getByPatientId(patientId);
 
   return (
     <div>
